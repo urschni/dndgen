@@ -2,7 +2,7 @@
 Hier soll ein Generator für Pathfinder-Dungeons entstehen
 
 ## Diagramme
-Alle [Diagramme](diagram/) wurden mit PlantUML erstellt (plantuml.com).
+Alle [Diagramme](diagrams/) wurden mit PlantUML erstellt (plantuml.com).
 
 Eine Live-Version gibt es unter: 
 	[PlantUML Live](http://www.plantuml.com/plantuml/uml/).
