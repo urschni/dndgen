@@ -1,4 +1,4 @@
-#User Storys: 
+User Storys:
   1. Als Nutzer möchte ich eine Visuelle Repräsentation des Dungons haben, damit ich mir den Dungon besser vorstellen kann.
   2. Als Nutzer möchte, dass Monster zufällig im Dungon gespawnt werden, damit ich diese als User nicht selber platzieren muss.
   3. Als Nutzer möchte ich die Monsterschwierigkeit einstellen können, damit ich den Dugon auf die Erfahrungen der Gruppe anpassen kann.
@@ -15,7 +15,7 @@
  14. Als Nutzer möchte ich die Kisten/Loot häufigkeit einstellen, damit nicht zu viel/zu wenig generiert wird.
  15. Als Nutzer möchte ich eigenen Loot hinzufügen, für mehr individuelle anpassung.
 
-##Optinal:
+Optinal:
   1. Als Nutzer möchte ich einen zufälligen Namen für den Dungeon generieren lassen,damit ich mir den nicht selber ausdenken muss.
   2. Als Nutzer möchte ich eine Backstory zu den Dungeon generieren lassen, damit ich anregungen für die Geschichte  bekomme.
   3. Als Nutzer möchte ich mehrere Ebenen und Treppen generieren lassen können,damit ich den Dungon interessanter gestalten kann
