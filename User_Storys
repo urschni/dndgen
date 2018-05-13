@@ -14,16 +14,17 @@ User Storys:
  12. Als Nutzer möchte ich Einstellen, ob ich Sackgassen will, für ärgermomente in der Gruppe.
  13. Als Nutzer möchte ich zufällig Kisten/Loot generieren lassen, damit ich dies nicht manuell tun muss.
  14. Als Nutzer möchte ich die Kisten/Loot häufigkeit einstellen, damit nicht zu viel/zu wenig generiert wird.
+ 
 Optinal:
-  1. Als Nutzer möchte ich einen zufälligen Namen für den Dungeon generieren lassen,damit ich mir den nicht selber ausdenken muss.
-  2. Als Nutzer möchte ich eine Backstory zu den Dungeon generieren lassen, damit ich anregungen für die Geschichte  bekomme.
-  3. Als Nutzer möchte ich mehrere Ebenen und Treppen generieren lassen können,damit ich den Dungon interessanter gestalten kann
-  4. Als Nutzer möchte ich eigene Monster hinzufügen,damit ich mehr meine eingene Geschichte gestalten kann.
-  5. Als Nutzer möchte ich die Raumgrößen festlegen können, für ein mehr einzigartiges gefühl der Dungons.
-  6. Als Nutzer möchte ich entscheiden, ob es Verschlossene Türen geben darf, um den Dungon interessanter zu gestalten.
-  7. Als Nutzer möchte ich den Dungeon an Themen anpassen, um ihn interessanter zu gestalten.
-     7.1    Themen wie: Höhle mit Teichen, Feuerdungon etc.
-  8. Als Nutzer möchte ich eigenen Loot hinzufügen, für mehr individuelle anpassung.
-  9. Als Nutzer möchte ich eine schöne Visuelle Repräsentation haben, damit ich mit den Dungeon besser vorstllen kann
- 10. Als Nutzer möchte ich den Dungeon noch weiter editieren könne, für mehr individuelle anpassung
-    10.1 Damit sind die Struktuellen eigenschaften wie Räume/Gänge/Türen gemeint.
+  O1. Als Nutzer möchte ich einen zufälligen Namen für den Dungeon generieren lassen,damit ich mir den nicht selber ausdenken muss.
+  O2. Als Nutzer möchte ich eine Backstory zu den Dungeon generieren lassen, damit ich anregungen für die Geschichte  bekomme.
+  O3. Als Nutzer möchte ich mehrere Ebenen und Treppen generieren lassen können,damit ich den Dungon interessanter gestalten kann
+  O4. Als Nutzer möchte ich eigene Monster hinzufügen,damit ich mehr meine eingene Geschichte gestalten kann.
+  O5. Als Nutzer möchte ich die Raumgrößen festlegen können, für ein mehr einzigartiges gefühl der Dungons.
+  O6. Als Nutzer möchte ich entscheiden, ob es Verschlossene Türen geben darf, um den Dungon interessanter zu gestalten.
+  O7. Als Nutzer möchte ich den Dungeon an Themen anpassen, um ihn interessanter zu gestalten.
+     O7.1    Themen wie: Höhle mit Teichen, Feuerdungon etc.
+  O8. Als Nutzer möchte ich eigenen Loot hinzufügen, für mehr individuelle anpassung.
+  O9. Als Nutzer möchte ich eine schöne Visuelle Repräsentation haben, damit ich mit den Dungeon besser vorstllen kann
+ O10. Als Nutzer möchte ich den Dungeon noch weiter editieren könne, für mehr individuelle anpassung
+    O10.1 Damit sind die Struktuellen eigenschaften wie Räume/Gänge/Türen gemeint.
