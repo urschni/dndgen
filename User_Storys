@@ -7,14 +7,13 @@ User Storys:
   6. Als Nutzer möchte ich die Fallenhäufigkeit einstellen können, damit ich dass auf die Gruppe anpassen kann.
   7. Als Nutzer möchte ich die Größe des Dungons entscheiden können, um damit auch die ungefähre Spielzeit festlegen zu können.
   8. Als Nutzer möchte ich Elemente im Vorhanden Dungons editieren können, falls mir kleinichkeiten nicht gefallen.
+    8.1 Damit ist Loot/Monster gemeint
   9. Als Nutzer möchte ich den Generierten Dungon gerne Abspeichern, damit ich den später noch editieren kann.
  10. Als Nutzer möchte ich genaue Informationen zu den Räumen in Schriftlicher Form haben, da dies für DnD üblich ist.
  11. Als Nutzer möchte ich den Dungon auf die Partygröße anpassen, damit nicht zu große/zu kleine Dungons entstehen.
  12. Als Nutzer möchte ich Einstellen, ob ich Sackgassen will, für ärgermomente in der Gruppe.
  13. Als Nutzer möchte ich zufällig Kisten/Loot generieren lassen, damit ich dies nicht manuell tun muss.
  14. Als Nutzer möchte ich die Kisten/Loot häufigkeit einstellen, damit nicht zu viel/zu wenig generiert wird.
- 15. Als Nutzer möchte ich eigenen Loot hinzufügen, für mehr individuelle anpassung.
-
 Optinal:
   1. Als Nutzer möchte ich einen zufälligen Namen für den Dungeon generieren lassen,damit ich mir den nicht selber ausdenken muss.
   2. Als Nutzer möchte ich eine Backstory zu den Dungeon generieren lassen, damit ich anregungen für die Geschichte  bekomme.
@@ -24,3 +23,7 @@ Optinal:
   6. Als Nutzer möchte ich entscheiden, ob es Verschlossene Türen geben darf, um den Dungon interessanter zu gestalten.
   7. Als Nutzer möchte ich den Dungeon an Themen anpassen, um ihn interessanter zu gestalten.
      7.1    Themen wie: Höhle mit Teichen, Feuerdungon etc.
+  8. Als Nutzer möchte ich eigenen Loot hinzufügen, für mehr individuelle anpassung.
+  9. Als Nutzer möchte ich eine schöne Visuelle Repräsentation haben, damit ich mit den Dungeon besser vorstllen kann
+ 10. Als Nutzer möchte ich den Dungeon noch weiter editieren könne, für mehr individuelle anpassung
+    10.1 Damit sind die Struktuellen eigenschaften wie Räume/Gänge/Türen gemeint.
