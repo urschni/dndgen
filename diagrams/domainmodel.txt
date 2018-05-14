@@ -1,7 +1,10 @@
 @startuml
+skinparam defaultFontSize 14
+skinparam defaultFontName Arial
+
 object Karte
 Karte : Grid[][]
-object Monster_Loot_Tabellen
+object "Monster Loot Tabellen" as Monster_Loot_Tabellen
 object GUI
 
 object Raum
@@ -12,20 +15,18 @@ object Tür
 object Monster
 object Beute
 
-note "Hier werden alle Daten zusammengeführt" as Kartennotiz
-Kartennotiz . Karte
-
-Karte --> GUI : Bekommt Parameter
+Karte -right-> GUI : Bekommt Parameter
 GUI --> Karte : Stellt dar
 
-Monster -- Gang
-Monster -- Raum
-Monster_Loot_Tabellen ---> Monster
-Beute -- Gang
-Beute -- Raum
-Monster_Loot_Tabellen ---> Beute
+Monster --- Gang
+Monster --- Raum
+Monster_Loot_Tabellen -> Monster
+Beute --- Gang
+Beute --- Raum
+Monster_Loot_Tabellen -> Beute
 
 Karte "1" --- "*" Raum
+Karte "1" -up-- "*" Gang
 Gang "*" - "2..*" Raum
 Gang "1" - "*" Tür
 Tür "*" - "1" Raum
