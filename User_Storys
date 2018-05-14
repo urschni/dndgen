@@ -6,8 +6,6 @@ User Storys:
   5. Als Nutzer möchte ich Fallen erlauben/verbieten, damit ich dies nicht manuell tuen muss.
   6. Als Nutzer möchte ich die Fallenhäufigkeit einstellen können, damit ich dass auf die Gruppe anpassen kann.
   7. Als Nutzer möchte ich die Größe des Dungons entscheiden können, um damit auch die ungefähre Spielzeit festlegen zu können.
-  8. Als Nutzer möchte ich Elemente im Vorhanden Dungons editieren können, falls mir kleinichkeiten nicht gefallen.
-    8.1 Damit ist Loot/Monster gemeint
   9. Als Nutzer möchte ich den Generierten Dungon gerne Abspeichern, damit ich den später noch editieren kann.
  10. Als Nutzer möchte ich genaue Informationen zu den Räumen in Schriftlicher Form haben, da dies für DnD üblich ist.
  11. Als Nutzer möchte ich den Dungon auf die Partygröße anpassen, damit nicht zu große/zu kleine Dungons entstehen.
@@ -27,6 +25,7 @@ Optinal:
      O7.1    Themen wie: Höhle mit Teichen, Feuerdungon etc.
   O8. Als Nutzer möchte ich eigenen Loot hinzufügen, für mehr individuelle anpassung.
   O9. Als Nutzer möchte ich eine schöne Visuelle Repräsentation haben, damit ich mit den Dungeon besser vorstllen kann
- O10. Als Nutzer möchte ich den Dungeon noch weiter editieren könne, für mehr individuelle anpassung
-    O10.1 Damit sind die Struktuellen eigenschaften wie Räume/Gänge/Türen gemeint.
+  O10. Als Nutzer möchte ich Elemente im Vorhanden Dungons editieren können, falls mir kleinichkeiten nicht gefallen.
+    10.1 Zu einem Loot/Monster
+    10.2 Zu anderem Strukturen
        
