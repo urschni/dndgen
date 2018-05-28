@@ -1,0 +1,23 @@
+<meta charset="utf-8">
+
+<h1 style="color: #5e9ca0;">Dungeon Generator</h1>
+<h2 style="color: #2e6c80;">Parameter</h2>
+ <form action="/cgi-bin/controller.py" target="_blank">
+  First name:<br>
+  <input type="text" name="firstname"><br>
+  Fallen spawnen:<br>
+  <input type="radio" name="trap_allow" value="True" checked> True
+  <input type="radio" name="trap_allow" value="False"> False<br>
+   Monster CR:<br>
+  <input type="text" name="monster_cr"><br>
+   Group size:<br>
+  <input type="text" name="group_size"><br>
+   Trap frequency:<br>
+  <input type="text" name="trap_freq"><br>
+   Dungeon Size:<br>
+  <input type="text" name="dungeon_size"><br>
+   Allow dead ends:<br>
+  <input type="radio" name="deadends_allow" value="True" checked> True
+  <input type="radio" name="deadends_allow" value="False"> False<br><br>
+   <input type="submit" value="Generate Dungeon">
+</form> 
