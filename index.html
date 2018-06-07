@@ -1,23 +1,141 @@
+<!DOCTYPE html>
+<html>
 <meta charset="utf-8">
-<head> <title>Dungeon Generator</title> </head>
-<h1 style="color: #5e9ca0;">Dungeon Generator</h1>
-<h2 style="color: #2e6c80;">Parameter</h2>
- <form action="/cgi-bin/controller.py" target="_blank">
-  First name:<br>
-  <input type="text" name="firstname"><br>
-  Fallen spawnen:<br>
-  <input type="radio" name="trap_allow" value="True" checked> True
-  <input type="radio" name="trap_allow" value="False"> False<br>
-   Monster CR:<br>
-  <input type="text" name="monster_cr"><br>
-   Group size:<br>
-  <input type="text" name="group_size"><br>
-   Trap frequency:<br>
-  <input type="text" name="trap_freq"><br>
-   Dungeon Size:<br>
-  <input type="text" name="dungeon_size"><br>
-   Allow dead ends:<br>
-  <input type="radio" name="deadends_allow" value="True" checked> True
-  <input type="radio" name="deadends_allow" value="False"> False<br><br>
-   <input type="submit" value="Generate Dungeon">
-</form> 
+<head> <title>Dungeon Generator</title> 
+	<style>
+		body{
+			background-image: url(graphics/bg.png);
+		}
+		.content {
+			max-width: 500px;
+			margin: auto;
+			padding: 10px;
+			background-color: rgba(255,255,255,0.70);
+			line-height: 2;
+			font-size: 20px;
+		}
+		input{font-size: 18px;}
+		select{font-size: 18px;}
+		.center {
+			display: block;
+			margin-left: auto;
+			margin-right: auto;
+		}
+	</style>
+	<script type="text/javascript">
+window.onload = function() {
+	AllowMonster = document.getElementById("AllowMonster");
+	AllowTraps = document.getElementById("AllowTraps");
+	AllowLoot = document.getElementById("AllowLoot")
+	
+	document.Params.monster_allow[0].onclick = function() {
+		AllowMonster.style.display = "block";
+	}
+	document.Params.trap_allow[0].onclick = function() {
+		AllowTraps.style.display = "block";
+	}
+	document.Params.loot_allow[0].onclick = function() {
+		AllowLoot.style.display = "block";
+	}
+	document.Params.monster_allow[1].onclick = function() {
+		AllowMonster.style.display = "none";
+	}
+	document.Params.trap_allow[1].onclick = function() {
+		AllowTraps.style.display = "none";
+	}
+	document.Params.loot_allow[1].onclick = function() {
+		AllowLoot.style.display = "none";
+	}
+	AllowMonster.style.display = "block";
+	AllowTraps.style.display = "none";
+	AllowLoot.style.display = "block";
+}
+	</script>
+</head>
+<body>
+	<img class="center" src="graphics/DungeonGen.png" alt="Dungeon Logo" style="width:500px">
+<div class="content">
+ <form id="Prams" action="/cgi-bin/controller.py" target="_blank" name="Params">
+  <!-- Textbox appears when yes is checked -->
+		Dungeon Name:
+		<input type="text" name="dungeon_name" size="30">
+		<br>
+		Dungeon Size:
+		<select name="dungeon_size">
+			<option value="small"> Small</option>
+			<option value="medium" selected> Medium</option>
+			<option value="large"> Large</option>
+		</select>
+		<br>
+		Dungen Level:
+		<select name="dungeon_lvl">
+			<option value="1"> 1</option>
+			<option value="2"> 2</option>
+			<option value="3"> 3</option>
+			<option value="4"> 4</option>
+			<option value="5"> 5</option>
+			<option value="6"> 6</option>
+			<option value="7"> 7</option>
+			<option value="8"> 8</option>
+			<option value="9"> 9</option>
+			<option value="10"> 10</option>
+		</select>
+		<br>
+		Party Size:
+		<select name="party_size">
+			<option value="1"> 1</option>
+			<option value="2"> 2</option>
+			<option value="3"> 3</option>
+			<option value="4"> 4</option>
+			<option value="5"> 5</option>
+			<option value="6"> 6</option>
+		</select>
+		<br>
+		Allow Monster:
+		<input type="radio" name="monster_allow" value="yes" checked>Yes <input type="radio" name="monster_allow" value="no">No
+		<br>
+			<div id=AllowMonster>
+				MonsterType:
+				<select name="monster_type">
+					<option value="undead" selected> Undead</option>
+					<option value="humanoid"> Humanoid</option>
+					<option value="vermin"> Vermin</option>
+					<option value="beast"> Breast</option>
+					<option value="fey"> Fey</option>
+					<option value="immortal"> Immortal</option>
+					<option value="shadow"> Shadow</option>
+					<option value="mixed"> Mixed</option>
+				</select>
+			</div>
+		Allow Traps:
+		<input type="radio" name="trap_allow" value="yes">Yes <input type="radio" name="trap_allow" value="no" checked> No 
+		<br>
+			<div id=AllowTraps>
+				Trap frequency:
+				<select name="trap_freq">
+					<option value="low"> Low</option>
+					<option value="medium" selected> Medium</option>
+					<option value="high"> High</option>
+				</select>
+			</div>
+		Allow Deadends:
+		<input type="radio" name="deadend_allow" value="yes"checked>Yes <input type="radio" name="deadend_allow" value="no"> No
+		<br>
+		Allow Loot Chests:
+		<input type="radio" name="loot_allow" value="yes" checked>Yes <input type="radio" name="loot_allow" value="no"> No 
+		<br>
+			<div id=AllowLoot>
+				Loot Chests frequency:
+				<select name="loot_freq">
+					<option value="low"> Low</option>
+					<option value="medium" selected> Medium</option>
+					<option value="high"> High</option>
+				</select>
+			</div>
+		<br>
+		<input class="center" type="submit" value="Generate Dungeon">
+		
+</form>
+</div>
+</body>
+</html> 
