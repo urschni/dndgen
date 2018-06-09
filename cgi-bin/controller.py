@@ -135,11 +135,16 @@ map = dungeon.returnArray()
 #Generate encounter
 number_of_encounter = np.amax(map) - 1
 encounter = ''
-if monster_allow:
+if monster_allow or loot_allow:
     encounter = '<h2>Encounter</h2>\n'
-    for encounter_number in range(1, number_of_encounter):
-        encounter += '<h3>Room ' + str(encounter_number) + '</h3>\n'
-        encounter += gen_encounter(dungeon_lvl) + '\n'
+    for room_number in range(1, number_of_encounter):
+        encounter += '<h3>Room ' + str(room_number) + '</h3>\n'
+        if monster_allow:
+            encounter += '<h4>Monster:</h4>\n'
+            encounter += gen_encounter(dungeon_lvl) + '\n'
+        if loot_allow:
+            encounter += '<h4>Loot:</h4>\n'
+            encounter += gen_loot(dungeon_lvl)
 
 
 #Generate Image from numpyArray and resize it
@@ -149,6 +154,7 @@ img = img.resize((500,500))
 img = img.rotate(90)
 img.save('./my.png')
 
+include_debug = True
 #Print the HTML page for the client
 print("Content-Type: text/html; charset=utf-8\n")
 print("<html>")
@@ -157,8 +163,9 @@ if dungeon_name is not None:
     print("<h1>" + dungeon_name + "</h1>")
 else:
     print("<h1>Dungeon is generated!</h1>")
-print("<h2>Values:</h2>")
-print(all_attributes)
+if include_debug:
+    print("<h2>Values:</h2>")
+    print(all_attributes)
 print("<br><img src=\"/my.png\" alt=\"Dungeon Map\"><br>")
 print(encounter)
 print("</body>")

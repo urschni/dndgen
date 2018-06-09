@@ -133,31 +133,53 @@ def getOneRandomMonster(monsterDB, cr, types):
     if isinstance(cr, float):
         cr = str(cr).replace('.', '/')
     cursor = monsterDB.cursor()
+    #print('CR:\t', cr)
     if types is None:
-        cursor.execute('SELECT ' + monster_columns_sql + ' FROM monsters WHERE cr = ' + str(cr) + ' ORDER BY random() LIMIT 1;')
-        randomMonster = cursor.fetchall()
-        return randomMonster
+        cursor.execute('SELECT ' + monster_columns_sql + ' FROM monsters WHERE cr = \'' + str(cr) + '\' ORDER BY random() LIMIT 1;')
+        randomMonster = cursor.fetchone()
+        #print(randomMonster)
+        if isinstance(randomMonster, list):
+            #print(randomMonster)
+            return randomMonster[0]
+        else:
+            return randomMonster
     else:
         if not isinstance(types, list):
             types = [types]
         type_sql = "("
-        for type in types:
-            type_sql += "\'" + type + "\',"
+        for act_type in types:
+            type_sql += "\'" + act_type + "\',"
         type_sql = type_sql[:-1] + ")"
         cursor.execute('SELECT ' + monster_columns_sql + ' FROM monsters WHERE creature_type in ' + type_sql + ' LIMIT 1;')
-        randomMonster = cursor.fetchall()
-        return randomMonster
+        randomMonster = cursor.fetchone()
+        if isinstance(randomMonster, list):
+            return randomMonster[0]
+        else:
+            return randomMonster
 
+#Formatting for only one monster of an encounter
 def print_monster(monster):
+    #print(monster)
+    number = monster[0]
+    monster = monster[1]
     name = str(monster[monster_columns.index('name')])
     #cr = str(monster[monster_columns.index('cr')])
     url = str(monster[monster_columns.index('url')])
     xp = str(monster[monster_columns.index('xp')])
-    return '<a href=\"' + url + '\" target=\"_blank\">' + name + '</a>, ' + xp
+    return str(number) + 'x <a href=\"' + url + '\" target=\"_blank\">' + name + '</a>, ' + xp
 
+#Formatting for an entire encounter
 def print_encounter(encounter):
     return '<br>\n'.join([print_monster(m) for m in encounter])
 
+#Formatted output for loot generation
+def print_loot(loot):
+    output = ""
+    for item in loot:
+        number, kind, value = item
+        value = currency_split(value, 'gp')
+        output += str(number) + 'x ' + kind + ', ' + str(value) + '<br>\n'
+    return output
 
 '''
 Function to get smaller or bigger CR
@@ -200,6 +222,29 @@ def get_cp(number, currency):
 
 
 '''
+Function to split an integer value into pp, gp, sp and cp to print it out
+output format: str with W pp X gp Y sp Z cp if W,X,Y,Z is bigger than 0
+'''
+def currency_split(value, currency):
+    if isinstance(value, str):
+        value = int(value)
+    value = get_cp(value, currency)
+    value_str = ''
+    if value >= 1000:
+        value_str += str(int(value / 1000)) + ' pp'
+        value -= int(value / 1000)
+    elif value >= 100:
+        value_str += str(int(value / 100)) + ' gp'
+        value -= int(value / 100)
+    elif value >= 10:
+        value_str += str(int(value / 10)) + ' sp'
+        value -= int(value / 10)
+    elif value >= 1:
+        value_str += str(int(value)) + ' cp'
+        value -= int(value)
+    return value_str
+
+'''
 Generate one loot, dependend on the CR and the progression_speed
 progression_speed correspons: 0-slow, 1-medium, 2-fast
 '''
@@ -209,24 +254,26 @@ def gen_loot(cr, progression_speed=1):
 
     budget = treasure_per_encounter[cr][progression_speed]
     budget = get_cp(budget, 'gp')
-    print('start budget', budget)
+    #print('start budget', budget)
 
     #loot contains elements with the structure (number of object, object, value)
     loot = []
     gem_values = sorted(gems.keys())
     if budget < min(gem_values):
         loot.append((budget, 'cp', budget))
+        return print_loot(loot)
     while budget > min(gem_values):
         smallest_fitting_gem = gem_values[bisect(gem_values, budget) - 1]
-        print(smallest_fitting_gem)
+        #print(smallest_fitting_gem)
         number = int(budget / smallest_fitting_gem)
-        print(number)
+        #print(number)
         budget = budget - number * smallest_fitting_gem
-        print('budget', budget)
+        #print('budget', budget)
         loot.append((number, gems[smallest_fitting_gem][randint(0, len(gems[smallest_fitting_gem]) - 1)], number * smallest_fitting_gem))
     if budget > 0:
         loot.append((budget, 'cp', budget))
-    return loot
+    #print(loot)
+    return print_loot(loot)
 
 
 '''
@@ -256,7 +303,7 @@ def gen_encounter(*args):
             apl -= 1
         elif group_size >= 6:
             apl += 1
-        cr = apl + difficulty
+        cr = get_next_cr(apl, difficulty)
     elif len(args) == 1:
         cr = args[0]
     else:
@@ -277,28 +324,34 @@ def gen_encounter(*args):
 
     encounter = []
     monsters = cr_splits(cr, actual_number_of_monsters)
+    #print('what it should be:', actual_number_of_monsters, '; what it is', sum([m[0] for m in monsters]))
     for monster in monsters:
+        #print(monster)
         number_of_monsters = monster[0]
         if number_of_monsters == 1:
-            encounter += getOneRandomMonster(monsterDB, monster[1], None)
+            encounter.append((1, getOneRandomMonster(monsterDB, monster[1], None)))
         else:
-            #Decide if all Monster witht he same CR are of the same type
+            #Decide if all Monster with the same CR are of the same type
             #All the same
             if randint(1,3) == 1:
-                encounter += getOneRandomMonster(monsterDB, monster[1], None)
+                encounter.append((number_of_monsters, getOneRandomMonster(monsterDB, monster[1], None)))
             else:
                 number_of_next_monster = randint(1, number_of_monsters - 1)
                 number_of_monsters = number_of_monsters - number_of_next_monster
-                encounter += getOneRandomMonster(monsterDB, monster[1], None)
+                encounter.append((number_of_next_monster, getOneRandomMonster(monsterDB, monster[1], None)))
                 while number_of_monsters > 0:
-                    print("number_of_monsters", number_of_monsters)
+                    #print("number_of_monsters", number_of_monsters)
                     number_of_next_monster = randint(1, number_of_monsters)
-                    number_of_monsters = number_of_monsters - number_of_next_monster
-                    encounter += getOneRandomMonster(monsterDB, monster[1], None)
+                    number_of_monsters -= number_of_next_monster
+                    encounter.append((number_of_next_monster, getOneRandomMonster(monsterDB, monster[1], None)))
+    #print(encounter)
+    monsterDB.close()
     return print_encounter(encounter)
 
 
-#Splits the CR to the given number of monster
+'''
+Splits the CR to the given number of monster
+'''
 def cr_splits(cr, number_of_monsters):
     assert cr in cr_table
     assert isinstance(number_of_monsters, int)
@@ -317,12 +370,14 @@ def cr_splits(cr, number_of_monsters):
             splits.append([enc[0], (2, get_next_cr(enc[0][1], - 2))])
     # rand_index = random.randint(0,len(splits) - 1)
     if number_of_monsters == 1:
+        #print('It is only one monster!')
         return [(1, cr)]
     elif number_of_monsters in number_of_creatures:
         next_cr = get_next_cr(cr, - number_of_creatures.index(number_of_monsters) - 2)
         if next_cr is not None:
             return [(number_of_monsters, next_cr)]
         else:
+            print('CR did not fit!')
             return None
     else:
         monster_fitting = number_of_creatures[bisect(number_of_creatures, number_of_monsters) - 1]
@@ -338,7 +393,7 @@ def cr_splits(cr, number_of_monsters):
                 return None
         else:
             rest_monster = cr_splits(cr_fitting, number_of_monsters - monster_fitting)
-            print("rest_monster,",rest_monster)
+            #print("rest_monster,",rest_monster)
             if rest_monster is not None:
                 return [(monster_fitting, cr_fitting)] + rest_monster
             else:
@@ -347,4 +402,5 @@ def cr_splits(cr, number_of_monsters):
     return splits
 
 if __name__ == '__main__':
-    gen_encounter(5)
+    print(gen_encounter(5))
+    print(gen_loot(5))
