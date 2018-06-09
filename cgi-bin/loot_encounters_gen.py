@@ -1,5 +1,8 @@
 from random import randint
 from bisect import bisect
+import os
+import sqlite3
+from numpy import random as nprandom
 
 '''
 Table Experience Point Awards
@@ -103,10 +106,58 @@ gems = {
     500000: ['clearest bright green emerald', 'diamond', 'jacinth', 'ruby']
 }
 
+#Connect to the databases
+def openDB():
 
-def get_monster_by_cr(cr):
-    assert (cr in cr_table)
-    return ("Heres a monster with " + str(cr) + " CR!")
+    #ABSOLUTE filepaths are important or the databases are not found!
+    path = os.path.abspath(__file__)
+
+    path = path[:path.rfind(os.sep) + 1]
+    print(path)
+
+    monsterdb = sqlite3.connect(path + '../data/monsters.db')
+    itemdb = sqlite3.connect(path + '../data/items.db')
+
+    cursorMonsters = monsterdb.cursor()
+    cursorItems = itemdb.cursor()
+    return monsterdb, itemdb
+
+'''
+Function to get a random monster based on cr and type from the monster database
+'''
+#These are the columns returned by the function getOneRandomMonster
+monster_columns = ['name', 'cr', 'url', 'xp']
+def getOneRandomMonster(monsterDB, cr, types):
+    monster_columns_sql = ', '.join(monster_columns)
+    assert cr in cr_table
+    if isinstance(cr, float):
+        cr = str(cr).replace('.', '/')
+    cursor = monsterDB.cursor()
+    if types is None:
+        cursor.execute('SELECT ' + monster_columns_sql + ' FROM monsters WHERE cr = ' + str(cr) + ' ORDER BY random() LIMIT 1;')
+        randomMonster = cursor.fetchall()
+        return randomMonster
+    else:
+        if not isinstance(types, list):
+            types = [types]
+        type_sql = "("
+        for type in types:
+            type_sql += "\'" + type + "\',"
+        type_sql = type_sql[:-1] + ")"
+        cursor.execute('SELECT ' + monster_columns_sql + ' FROM monsters WHERE creature_type in ' + type_sql + ' LIMIT 1;')
+        randomMonster = cursor.fetchall()
+        return randomMonster
+
+def print_monster(monster):
+    name = str(monster[monster_columns.index('name')])
+    #cr = str(monster[monster_columns.index('cr')])
+    url = str(monster[monster_columns.index('url')])
+    xp = str(monster[monster_columns.index('xp')])
+    return '<a href=\"' + url + '\" target=\"_blank\">' + name + '</a>, ' + xp
+
+def print_encounter(encounter):
+    return '<br>\n'.join([print_monster(m) for m in encounter])
+
 
 '''
 Function to get smaller or bigger CR
@@ -176,6 +227,8 @@ def gen_loot(cr, progression_speed=1):
     if budget > 0:
         loot.append((budget, 'cp', budget))
     return loot
+
+
 '''
 Possible arguments:
 group_size - Number of groupmembers
@@ -185,7 +238,7 @@ OR
 cr - Challenge rating of the encounter
 '''
 def gen_encounter(*args):
-    if (len(args) == 3):
+    if len(args) == 3:
         group_size = args[0]
         group_lvl = args[1]
         difficulty = args[2]
@@ -204,38 +257,46 @@ def gen_encounter(*args):
         elif group_size >= 6:
             apl += 1
         cr = apl + difficulty
-    elif (len(args) == 1):
+    elif len(args) == 1:
         cr = args[0]
     else:
         print("Wrong number of arguments! Either 1 for only CR or 3 for group_size, group_lvl and difficulty")
         return None
+
+    #Randomly decide if this encounter is easy, average, challenging, hard or epic
+    encounter_design = int(nprandom.choice([-1, 0, 1, 2, 3], p=[0.28, 0.55, 0.10, 0.05, 0.02]))
+    cr = get_next_cr(cr, encounter_design)
+
+    #open the monster database
+    monsterDB = openDB()[0]
+
     xp_available = cr_to_xp[cr][0]
-    min_number_of_monsters = 1
-    max_number_of_monsters = 3
+    min_number_of_monsters = 3
+    max_number_of_monsters = 5
     actual_number_of_monsters = randint(min_number_of_monsters, max_number_of_monsters)
 
-    encounter = ""
+    encounter = []
     monsters = cr_splits(cr, actual_number_of_monsters)
     for monster in monsters:
         number_of_monsters = monster[0]
         if number_of_monsters == 1:
-            encounter += get_monster_by_cr(monster[1])
+            encounter += getOneRandomMonster(monsterDB, monster[1], None)
         else:
             #Decide if all Monster witht he same CR are of the same type
             #All the same
             if randint(1,3) == 1:
-                encounter += get_monster_by_cr(monster[1])
+                encounter += getOneRandomMonster(monsterDB, monster[1], None)
             else:
                 number_of_next_monster = randint(1, number_of_monsters - 1)
                 number_of_monsters = number_of_monsters - number_of_next_monster
-                encounter += get_monster_by_cr(monster[1])
+                encounter += getOneRandomMonster(monsterDB, monster[1], None)
                 while number_of_monsters > 0:
                     print("number_of_monsters", number_of_monsters)
                     number_of_next_monster = randint(1, number_of_monsters)
                     number_of_monsters = number_of_monsters - number_of_next_monster
-                    encounter += get_monster_by_cr(monster[1])
+                    encounter += getOneRandomMonster(monsterDB, monster[1], None)
+    return print_encounter(encounter)
 
-    return encounter
 
 #Splits the CR to the given number of monster
 def cr_splits(cr, number_of_monsters):
@@ -285,4 +346,5 @@ def cr_splits(cr, number_of_monsters):
                 return None
     return splits
 
-print(gen_loot(5))
+if __name__ == '__main__':
+    gen_encounter(5)

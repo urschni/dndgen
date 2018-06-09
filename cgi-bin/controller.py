@@ -10,30 +10,9 @@ import sqlite3
 import os
 cgitb.enable()
 
-#Connect to the databases
-#ABSOLUTE filepaths are important or the databases are not found!
-
-path = os.path.abspath(__file__)
-
-path = path[:-13]
-
-monsterdb = sqlite3.connect(path+str('../data/monsters.db'))
-itemdb = sqlite3.connect(path+str('../data/items.db'))
-
-cursorMonsters = monsterdb.cursor()
-cursorItems = itemdb.cursor()
-
-#For example select 10 random monsters
-
-cursorMonsters.execute("SELECT name, description FROM monsters ORDER BY random() LIMIT 10")
-
-monsters = cursorMonsters.fetchall()
-
-monsterdb.commit()
-itemdb.commit()
-
 #Timestamp to create unique filenames
 current_milli_time = lambda: int(round(time.time() * 1000.000))
+
 
 '''
 dungeon_size = (30,30)
@@ -93,25 +72,13 @@ for entrance_pos in entrances:
     print(entrance_pos)
     data[entrance_pos[0],entrance_pos[1]] = [255,255,255]
 
-
-
 '''
 
 
 #Get the values from the form
-
 form = cgi.FieldStorage()
 dungeon_name = form.getvalue('dungeon_name')
 dungeon_size = form.getvalue('dungeon_size')
-if 'small' == dungeon_size:
-    dungeon_size = (10, 10)
-    room_size = (3, 3)
-elif 'medium' == dungeon_size:
-    dungeon_size = (20, 20)
-    room_size = (5, 5)
-else:
-    dungeon_size = (30, 30)
-    room_size = (7, 7)
 dungeon_lvl = form.getvalue('dungeon_lvl')
 party_size = form.getvalue('party_size')
 monster_allow = form.getvalue('monster_allow')
@@ -121,44 +88,78 @@ trap_freq = form.getvalue('trap_freq')
 deadend_allow = form.getvalue('deadend_allow')
 loot_allow = form.getvalue('loot_allow')
 
+#Debug message with all attribtes from the HTML-form
 all_attributes = ""
 for x in form:
     all_attributes = all_attributes + str(form[x])[16:] + "<br>"
 
+yes_no_to_bool = {'yes': True, 'no': False, None: None}
+#Process HTML form data
+#Process dungeon_size
+if 'small' == dungeon_size:
+    dungeon_size = (10, 10)
+    max_room_size = (3, 3)
+elif 'medium' == dungeon_size:
+    dungeon_size = (20, 20)
+    max_room_size = (5, 5)
+else:
+    dungeon_size = (30, 30)
+    max_room_size = (7, 7)
+#Process dungeon_lvl
+dungeon_lvl = int(dungeon_lvl)
+#Process party_size
+party_size = int(party_size)
+#Process monster_allow
+monster_allow = yes_no_to_bool[monster_allow]
+#Process monster_type
+#monster_type comes right from the html-form
+#Process trap_allow
+trap_allow = yes_no_to_bool[trap_allow]
+#Process trap_freq
+if trap_freq == 'low':
+    trap_freq = 0.1
+elif trap_freq == 'medium':
+    trap_freq = 0.3
+else:
+    trap_freq = 0.5
+#Process deadend_allow
+deadend_allow = yes_no_to_bool[deadend_allow]
+#Process loot_allow
+loot_allow = yes_no_to_bool[loot_allow]
+
 #Create Dungeon
 dungeon = Dungeon(dungeon_size[0], dungeon_size[1], 50)
-dungeon.multiRoom(5, room_size[0], room_size[1], 1)
+dungeon.multiRoom(5, max_room_size[0], max_room_size[1], 1)
 map = dungeon.returnArray()
 
+#Generate encounter
+number_of_encounter = np.amax(map) - 1
+encounter = ''
+if monster_allow:
+    encounter = '<h2>Encounter</h2>\n'
+    for encounter_number in range(1, number_of_encounter):
+        encounter += '<h3>Room ' + str(encounter_number) + '</h3>\n'
+        encounter += gen_encounter(dungeon_lvl) + '\n'
+
+
 #Generate Image from numpyArray and resize it
-img = Image.fromarray(map, 'RGB')
+normalize = int(255/np.amax(map)) if np.amax(map) > 0 else 1
+img = Image.fromarray(map*normalize, mode='L')
 img = img.resize((500,500))
 img = img.rotate(90)
-img.save('../my.png')
+img.save('./my.png')
 
-#Prepare monsters so they are shown in the result
-name = []
-description = []
-encounters = ""
-
-for row in monsters:
-	name.append(row[0])
-	description.append(row[1])
-
-
-for i in range(0,10):
-	if description[i] == None:
-		description[i] = "No further description"
-	encounters = encounters + str(name[i]) + ": " + str(description[i]) + "<br>"
-
-print("Content-Type: text/html; charset=utf-8\n\n")
+#Print the HTML page for the client
+print("Content-Type: text/html; charset=utf-8\n")
 print("<html>")
 print("<body>")
-print("<h1>Dungeon " + dungeon_name + " is generated!</h1>")
+if dungeon_name is not None:
+    print("<h1>" + dungeon_name + "</h1>")
+else:
+    print("<h1>Dungeon is generated!</h1>")
 print("<h2>Values:</h2>")
 print(all_attributes)
-print("<br><img src=\"/my.png\" alt=\"Red Point\"><br>")
-print("<h2>You would have encountered the following monsters:</h2>")
-print(encounters)
+print("<br><img src=\"/my.png\" alt=\"Dungeon Map\"><br>")
+print(encounter)
 print("</body>")
 print("</html>")
