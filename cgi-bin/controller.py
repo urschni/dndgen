@@ -6,7 +6,31 @@ import json
 from random import randint
 from PIL import Image
 import numpy as np
+import sqlite3
+import os
 cgitb.enable()
+
+#Connect to the databases
+#ABSOLUTE filepaths are important or the databases are not found!
+
+path = os.path.abspath(__file__)
+
+path = path[:-13]
+
+monsterdb = sqlite3.connect(path+str('../data/monsters.db'))
+itemdb = sqlite3.connect(path+str('../data/items.db'))
+
+cursorMonsters = monsterdb.cursor()
+cursorItems = itemdb.cursor()
+
+#For example select 10 random monsters
+
+cursorMonsters.execute("SELECT name, description FROM monsters ORDER BY random() LIMIT 10")
+
+monsters = cursorMonsters.fetchall()
+
+monsterdb.commit()
+itemdb.commit()
 
 #Timestamp to create unique filenames
 current_milli_time = lambda: int(round(time.time() * 1000.000))
@@ -112,6 +136,21 @@ img = img.resize((500,500))
 img = img.rotate(90)
 img.save('../my.png')
 
+#Prepare monsters so they are shown in the result
+name = []
+description = []
+encounters = ""
+
+for row in monsters:
+	name.append(row[0])
+	description.append(row[1])
+
+
+for i in range(0,10):
+	if description[i] == None:
+		description[i] = "No further description"
+	encounters = encounters + str(name[i]) + ": " + str(description[i]) + "<br>"
+
 print("Content-Type: text/html; charset=utf-8\n\n")
 print("<html>")
 print("<body>")
@@ -119,5 +158,7 @@ print("<h1>Dungeon " + dungeon_name + " is generated!</h1>")
 print("<h2>Values:</h2>")
 print(all_attributes)
 print("<br><img src=\"/my.png\" alt=\"Red Point\"><br>")
+print("<h2>You would have encountered the following monsters:</h2>")
+print(encounters)
 print("</body>")
 print("</html>")
