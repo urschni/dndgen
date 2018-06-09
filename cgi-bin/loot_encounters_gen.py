@@ -3,7 +3,7 @@ from bisect import bisect
 
 '''
 Table Experience Point Awards
-1.8 equal to 1/8, 1.6 to 1/6, ...
+1.8 equal to 1/8, 1.6 to 1/6, 1.4 to 1/4, 1.3 to 1/3 and 1.2 to 1/2
 '''
 cr_table = [1.8, 1.6, 1.4, 1.3, 1.2, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23,
             24, 25, 26, 27, 28, 29, 30]
@@ -11,6 +11,7 @@ cr_table = [1.8, 1.6, 1.4, 1.3, 1.2, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 
 Table Experience Point Awards
 Gives XP per encounter with CR as key
 Column one is total XP, column two to four are individual XP for 1-3, 4-5 and 6+ players
+1.8 equal to 1/8, 1.6 to 1/6, 1.4 to 1/4, 1.3 to 1/3 and 1.2 to 1/2
 '''
 cr_to_xp = {
     1.8: [50, 15, 15, 10],
@@ -53,6 +54,7 @@ cr_to_xp = {
 '''
 Table Treasure Values per Encounter
 Column one for slow, two for medium, three for fast
+Numbers are in GP
 '''
 treasure_per_encounter = {
     1.8: [20, 35, 50],
@@ -92,15 +94,28 @@ treasure_per_encounter = {
     30: [280000, 420000, 630000]
 }
 
+gems = {
+    1000: ['agates', 'azurite', 'blue quartz', 'hematite', 'lapis lazuli', 'malachite', 'obsidian', 'rhodochrosite', 'tigereye', 'turquoise', 'freshwater (irregular) pearl'],
+    5000: ['bloodstone', 'carnelian', 'chalcedony', 'chrysoprase', 'citrine', 'jasper', 'moonstone', 'onyx', 'peridot', 'rock crystal (clear quartz)', 'sard', 'sardonyx', 'rose quartz', 'smoky quartz', 'star rose quartz', 'zircon'],
+    10000: ['amber', 'amethyst', 'chrysoberyl', 'coral', 'red garnet', 'brown-green garnet', 'jade', 'jet', 'white pearl', 'golden pearl', 'pink pearl', 'silver pearl', 'red spinel', 'red-brown spinel', 'deep green spinel', 'tourmaline'],
+    50000: ['alexandrite', 'aquamarine', 'violet garnet', 'black pearl', 'deep blue spinel', 'golden yellow topaz'],
+    100000: ['emerald', 'white opal', 'black opal', 'fire opal', 'blue sapphire', 'fiery yellow corundum', 'rich purple corundum', 'blue star sapphire', 'black star sapphire'],
+    500000: ['clearest bright green emerald', 'diamond', 'jacinth', 'ruby']
+}
+
 
 def get_monster_by_cr(cr):
     assert (cr in cr_table)
     return ("Heres a monster with " + str(cr) + " CR!")
 
-
+'''
+Function to get smaller or bigger CR
+cr is the actual CR and "change_by" gives the number of steps to make cr bigger (positive number) or smaller (negative number)
+'''
 def get_next_cr(cr, change_by):
     assert (isinstance(change_by, int))
     assert (isinstance(cr, (int, float)))
+    assert cr in cr_table
     temp_cr = cr_table.index(cr) + change_by
     if (temp_cr < 0):
         print("CR is lower than 1/8")
@@ -111,6 +126,56 @@ def get_next_cr(cr, change_by):
     return cr_table[temp_cr]
 
 
+'''
+Function to get a value in cp dependent on the currency
+currency can have the following currencys: cp, sp, gp, pp
+'''
+def get_cp(number, currency):
+    assert isinstance(number, int)
+    assert isinstance(currency, str)
+    assert currency.lower() in ['cp', 'sp', 'gp', 'pp']
+
+    currency = currency.lower()
+    if currency == "cp":
+        return number
+    elif currency == 'sp':
+        return number * 10
+    elif currency == 'gp':
+        return number * 100
+    elif currency == 'pp':
+        return number * 1000
+    else:
+        return None
+
+
+'''
+Generate one loot, dependend on the CR and the progression_speed
+progression_speed correspons: 0-slow, 1-medium, 2-fast
+'''
+def gen_loot(cr, progression_speed=1):
+    assert cr in cr_table
+    assert progression_speed in [0, 1, 2]
+
+    budget = treasure_per_encounter[cr][progression_speed]
+    budget = get_cp(budget, 'gp')
+    print('start budget', budget)
+
+    #loot contains elements with the structure (number of object, object, value)
+    loot = []
+    gem_values = sorted(gems.keys())
+    if budget < min(gem_values):
+        loot.append((budget, 'cp', budget))
+    while budget > min(gem_values):
+        smallest_fitting_gem = gem_values[bisect(gem_values, budget) - 1]
+        print(smallest_fitting_gem)
+        number = int(budget / smallest_fitting_gem)
+        print(number)
+        budget = budget - number * smallest_fitting_gem
+        print('budget', budget)
+        loot.append((number, gems[smallest_fitting_gem][randint(0, len(gems[smallest_fitting_gem]) - 1)], number * smallest_fitting_gem))
+    if budget > 0:
+        loot.append((budget, 'cp', budget))
+    return loot
 '''
 Possible arguments:
 group_size - Number of groupmembers
@@ -172,7 +237,7 @@ def gen_encounter(*args):
 
     return encounter
 
-
+#Splits the CR to the given number of monster
 def cr_splits(cr, number_of_monsters):
     assert cr in cr_table
     assert isinstance(number_of_monsters, int)
@@ -220,7 +285,4 @@ def cr_splits(cr, number_of_monsters):
                 return None
     return splits
 
-
-print(gen_encounter(8))
-
-#print(cr_splits(1.2, 5))
+print(gen_loot(5))
