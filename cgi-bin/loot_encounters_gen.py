@@ -113,7 +113,7 @@ def openDB():
     path = os.path.abspath(__file__)
 
     path = path[:path.rfind(os.sep) + 1]
-    print(path)
+    #print(path)
 
     monsterdb = sqlite3.connect(path + '../data/monsters.db')
     itemdb = sqlite3.connect(path + '../data/items.db')
@@ -136,13 +136,14 @@ def getOneRandomMonster(monsterDB, cr, types):
     #print('CR:\t', cr)
     if types is None:
         cursor.execute('SELECT ' + monster_columns_sql + ' FROM monsters WHERE cr = \'' + str(cr) + '\' ORDER BY random() LIMIT 1;')
+        monsterDB.commit()
         randomMonster = cursor.fetchone()
-        #print(randomMonster)
-        if isinstance(randomMonster, list):
-            #print(randomMonster)
-            return randomMonster[0]
-        else:
-            return randomMonster
+        #print('cr', cr, ';randomMonster', randomMonster)
+        if randomMonster[monster_columns.index('xp')] is None:
+            randomMonster = list(randomMonster)
+            randomMonster[monster_columns.index('xp')] = '0'
+            return tuple(randomMonster)
+        return randomMonster
     else:
         if not isinstance(types, list):
             types = [types]
@@ -165,7 +166,7 @@ def print_monster(monster):
     name = str(monster[monster_columns.index('name')])
     #cr = str(monster[monster_columns.index('cr')])
     url = str(monster[monster_columns.index('url')])
-    xp = str(monster[monster_columns.index('xp')])
+    xp = str(number * int(''.join(c for c in monster[monster_columns.index('xp')] if c.isdigit())))
     return str(number) + 'x <a href=\"' + url + '\" target=\"_blank\">' + name + '</a>, ' + xp
 
 #Formatting for an entire encounter
@@ -191,11 +192,11 @@ def get_next_cr(cr, change_by):
     assert cr in cr_table
     temp_cr = cr_table.index(cr) + change_by
     if (temp_cr < 0):
-        print("CR is lower than 1/8")
-        return None
+        #print("CR is lower than 1/8")
+        return 1.8
     elif (temp_cr > 34):
-        print("CR is bigger than 30, ")
-        return None
+        #print("CR is bigger than 30, ")
+        return 30
     return cr_table[temp_cr]
 
 
@@ -389,8 +390,8 @@ def cr_splits(cr, number_of_monsters):
             if rest_monster is not None:
                 return [(monster_fitting - 1, cr_fitting)] + rest_monster
             else:
-                print("Number of monsters can't be fit to given CR!")
-                return None
+                print("Number of monsters (", number_of_monsters - monster_fitting + 1 ,") with CR=", cr_fitting, " can't be fit to given CR!", sep='')
+                return [(monster_fitting - 1, cr_fitting)]
         else:
             rest_monster = cr_splits(cr_fitting, number_of_monsters - monster_fitting)
             #print("rest_monster,",rest_monster)
@@ -398,9 +399,12 @@ def cr_splits(cr, number_of_monsters):
                 return [(monster_fitting, cr_fitting)] + rest_monster
             else:
                 print("Number of monsters can't be fit to given CR!")
-                return None
+                return [(monster_fitting, cr_fitting)]
     return splits
 
 if __name__ == '__main__':
-    print(gen_encounter(5))
-    print(gen_loot(5))
+    for a in range(28, 30):
+        print('------------------------\n', str(a))
+        for b in range(0, 1000):
+            print(gen_encounter(a))
+    #print(gen_loot(5))
