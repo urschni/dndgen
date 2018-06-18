@@ -129,7 +129,7 @@ loot_allow = yes_no_to_bool[loot_allow]
 
 #Create Dungeon
 dungeon = Dungeon(dungeon_size[0], dungeon_size[1], 50)
-#dungeon.multiRoom(5, max_room_size[0], max_room_size[1], 1)
+dungeon.multiRoom(5, max_room_size[0], max_room_size[1], 1)
 map = dungeon.returnArray()
 
 #Generate encounter
