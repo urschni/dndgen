@@ -15,8 +15,9 @@ current_milli_time = lambda: int(round(time.time() * 1000.000))
 #Get the values from the form
 form = cgi.FieldStorage()
 dungeon_name = form.getvalue('dungeon_name')
-dungeon_height = form.getvalue('dungeon_height')
-dungeon_length = form.getvalue('dungeon_length')
+dungeon_size_box = form.getvalue('dungeon_size_box')
+dungeon_height = form.getvalue('dungeon_size_height')
+dungeon_length = form.getvalue('dungeon_size_length')
 dungeon_size = form.getvalue('dungeon_size')
 room_density = form.getvalue('room_density')
 dungeon_lvl = form.getvalue('dungeon_lvl')
@@ -37,11 +38,16 @@ for x in form:
 yes_no_to_bool = {'yes': True, 'no': False, None: None}
 #Process HTML form data
 #Process dungeon_size
-if dungeon_height and dungeon_length not None:
-	height = int(dungeon_height)
-	length = int(dungeon_length)
-	dungeon_size = (length,height)
-	max_room_size = (int(length/4),int(height/4))
+dungeon_size_box = yes_no_to_bool[dungeon_size_box]
+if dungeon_size_box:
+	if (dungeon_height and dungeon_length) != None:
+		height = int(dungeon_height)
+		length = int(dungeon_length)
+		dungeon_size = (length,height)
+		max_room_size = (int(length/4),int(height/4))
+	else:
+		dungeon_size = (20, 20)
+		max_room_size = (5, 5)
 else:
 	if 'small' == dungeon_size:
 		dungeon_size = (10, 10)
