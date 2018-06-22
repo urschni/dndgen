@@ -10,10 +10,17 @@
 		.content {
 			max-width: 500px;
 			margin: auto;
-			padding: 10px;
+			padding: 15px;
 			background-color: rgba(255,255,255,0.85);
 			line-height: 2;
 			font-size: 20px;
+		}
+		.gitlink {
+			max-width: 525px;
+			margin: auto;
+			left: 0;
+			bottom: 0;
+			text-align: right;
 		}
 		input{font-size: 18px;}
 		select{font-size: 18px;}
@@ -25,10 +32,16 @@
 	</style>
 	<script type="text/javascript">
 window.onload = function() {
+	DungeonSizeMan = document.getElementById("DungeonSizeMan");
+	DungeonSizeAuto = document.getElementById("DungeonSizeAuto");
 	AllowMonster = document.getElementById("AllowMonster");
 	AllowTraps = document.getElementById("AllowTraps");
 	AllowLoot = document.getElementById("AllowLoot")
 	
+	document.Params.dungeon_size_box[0].onclick = function(){
+		DungeonSizeAuto.style.display = "block";
+		DungeonSizeMan.style.display = "none";
+	}
 	document.Params.monster_allow[0].onclick = function() {
 		AllowMonster.style.display = "block";
 	}
@@ -37,6 +50,10 @@ window.onload = function() {
 	}
 	document.Params.loot_allow[0].onclick = function() {
 		AllowLoot.style.display = "block";
+	}
+	document.Params.dungeon_size_box[1].onclick = function(){
+		DungeonSizeAuto.style.display = "none";
+		DungeonSizeMan.style.display = "block";
 	}
 	document.Params.monster_allow[1].onclick = function() {
 		AllowMonster.style.display = "none";
@@ -47,6 +64,8 @@ window.onload = function() {
 	document.Params.loot_allow[1].onclick = function() {
 		AllowLoot.style.display = "none";
 	}
+	DungeonSizeAuto.style.display = "block";
+	DungeonSizeMan.style.display = "none";
 	AllowMonster.style.display = "block";
 	AllowTraps.style.display = "none";
 	AllowLoot.style.display = "block";
@@ -57,15 +76,30 @@ window.onload = function() {
 	<img class="center" src="graphics/DungeonGen.png" alt="Dungeon Logo" style="width:500px">
 <div class="content">
  <form id="Prams" action="/cgi-bin/controller.py" target="_blank" name="Params">
-  <!-- Textbox appears when yes is checked -->
+  <!-- Dungeon Options -->
 		Dungeon Name:
 		<input type="text" name="dungeon_name" size="30">
 		<br>
-		Dungeon Size:
-		<select name="dungeon_size">
-			<option value="small"> Small</option>
-			<option value="medium" selected> Medium</option>
-			<option value="large"> Large</option>
+		Set Dungeon Size Manually? :
+		<input type="radio" name="dungeon_size_box" value="no" checked>No <input type="radio" name="dungeon_size_box" value="yes">Yes
+		<br>
+			<div id= DungeonSizeAuto>
+				Dungeon Size:
+				<select name="dungeon_size">
+					<option value="small"> Small</option>
+					<option value="medium" selected> Medium</option>
+					<option value="large"> Large</option>
+				</select>
+			</div>
+			<div id=DungeonSizeMan>
+				Dungeon Size: <br>
+				&emsp; Width: <input type="text" name="dungeon_size_width" size="3"> &emsp; Length: <input type="text" name="dungeon_size_length" size="3">
+			</div>
+		Room Density:
+		<select name="room_denstiy">
+			<option value="Low"> Low </option>
+			<option value="Medium" selected> Medium </option>
+			<option value="High"> High </option>
 		</select>
 		<br>
 		Dungeon Level:
@@ -122,7 +156,8 @@ window.onload = function() {
 			<div id=AllowMonster>
 				MonsterType:
 				<select name="monster_type">
-					<option value="Aberration" selected> Aberration</option>
+					<option value="All" selected> All </option>
+					<option value="Aberration"> Aberration</option>
 					<option value="Animal"> Animal</option>
 					<option value="Construct"> Construct</option>
 					<option value="Dragon"> Dragon</option>
@@ -162,10 +197,25 @@ window.onload = function() {
 					<option value="high"> High</option>
 				</select>
 			</div>
+		Dungeon Image Resolution:
+		<select name="img_res">
+			<option value="low"> Low</option>
+			<option value="medium" selected> Medium</option>
+			<option value="high"> High</option>
+			<option value="very_high"> Very High</option>
+			<option value="ultra"> Ultra</option>
+		</select>
+		<br>
 		<br>
 		<input class="center" type="submit" value="Generate Dungeon">
-		
 </form>
+</div>
+ <!-- Github link -->
+<div class="gitlink">
+	<br>
+	<a href="https://github.com/urschni/dndgen">
+	<img src="graphics/GithubLogo.png" alt="Github Link" style="width:150px">
+	</a>
 </div>
 </body>
 </html> 
