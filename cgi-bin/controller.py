@@ -2,11 +2,12 @@ import cgi, cgitb
 import time
 from DnD import *
 from loot_encounters_gen import *
+from monster_encounters_gen import *
+from response_gen import *
 from random import randint
 from PIL import Image
 import numpy as np
-import sqlite3
-import os
+
 cgitb.enable()
 
 #Timestamp to create unique filenames
@@ -102,12 +103,7 @@ img_res = (img_len,img_height)
 
 #Create Dungeon
 dungeon = Dungeon(dungeon_size[0], dungeon_size[1], 50)
-"""
-multiRoom(self,interval,numberOfRoom):
-:param interval         um die beste Weise von der Partition zu kontrollieren:
-:param numberOfRoom     die Anzahl von Räume:
-"""
-dungeon.multiRoom(2,5)
+#dungeon.multiRoom(5, max_room_size[0], max_room_size[1], 1)
 map = dungeon.returnArray()
 
 #Generate encounter
@@ -119,7 +115,7 @@ if monster_allow or loot_allow:
         encounter += '<h3>Room ' + str(room_number) + '</h3>\n'
         if monster_allow:
             encounter += '<h4>Monster:</h4>\n'
-            encounter += gen_encounter(dungeon_lvl) + '\n'
+            encounter += gen_monster_encounter(dungeon_lvl) + '\n'
         if loot_allow:
             encounter += '<h4>Loot:</h4>\n'
             encounter += gen_loot(dungeon_lvl)
@@ -135,32 +131,8 @@ img = img.rotate(90)
 img.save('./my.png')
 
 include_debug = True
-#Print the HTML page for the client
-print("Content-Type: text/html; charset=utf-8\n")
-print("<html>")
-print("<meta charset=\"utf-8\">")
-print("<head> <title>Dungeon Generator</title> ")
-print("<link rel=\"shortcut icon\" href=\"http://localhost:8000/graphics/icon.ico\" type=\"image/vnd.microsoft.icon\" />")
-print("<style>")
-print("body{background-image: url(http://localhost:8000/graphics/bg.png);}")
-print(".content {max-width: 500px;margin: auto;padding: 10px;background-color: rgba(255,255,255,0.85);line-height: 2;font-size: 20px;}")
-print("input{font-size: 18px;}")
-print("select{font-size: 18px;}")
-print(".center {display: block;margin-left: auto;margin-right: auto;}")
-print("</style>")
-print("</head>")
-print("<body>")
-print("<img class=\"center\" src=\"http://localhost:8000/graphics/DungeonGen.png\" alt=\"Dungeon Logo\" style=\"width:500px\">")
-print("<div class=\"content\">")
-if dungeon_name is not None:
-    print("<h1>" + dungeon_name + "</h1>")
-else:
-    print("<h1>Dungeon is generated!</h1>")
-if include_debug:
-    print("<h2>Values:</h2>")
-    print(all_attributes)
-print("<br><img src=\"/my.png\" alt=\"Dungeon Map\"><br>")
-print(encounter)
-print("</div>")
-print("</body>")
-print("</html>")
+
+
+#Send attributes to the HTML page- printer
+
+printResponse(include_debug, dungeon_name, all_attributes, encounter) 
