@@ -102,7 +102,12 @@ img_res = (img_len,img_height)
 
 #Create Dungeon
 dungeon = Dungeon(dungeon_size[0], dungeon_size[1], 50)
-#dungeon.multiRoom(5, max_room_size[0], max_room_size[1], 1)
+"""
+multiRoom(self,interval,numberOfRoom):
+:param interval         um die beste Weise von der Partition zu kontrollieren:
+:param numberOfRoom     die Anzahl von Räume:
+"""
+dungeon.multiRoom(2,5)
 map = dungeon.returnArray()
 
 #Generate encounter
