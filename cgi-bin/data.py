@@ -28,4 +28,4 @@ def get_Cursor(db):
 #close connection to a databse
 def closeDB(db):
 	
-	db.close();
+	db.close()

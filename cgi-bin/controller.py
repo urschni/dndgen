@@ -103,7 +103,7 @@ img_res = (img_len,img_height)
 
 #Create Dungeon
 dungeon = Dungeon(dungeon_size[0], dungeon_size[1], 50)
-#dungeon.multiRoom(5, max_room_size[0], max_room_size[1], 1)
+dungeon.multiRoom(5, 2)
 map = dungeon.returnArray()
 
 #Generate encounter
@@ -120,13 +120,13 @@ if monster_allow or loot_allow:
             encounter += '<h4>Loot:</h4>\n'
             encounter += gen_loot(dungeon_lvl)
 
-def black_white(x):
-    return 0 if x == 0 else 1
-black_white = np.vectorize(black_white)
-#Generate Image from numpyArray and resize it
-normalize = int(255/np.amax(map)) if np.amax(map) > 0 else 1
-img = Image.fromarray(black_white(map), mode='1')
-img = img.resize((500,500))
+bw_map = np.zeros((dungeon_size[0], dungeon_size[1], 3), np.uint8)
+bw_map[map > 0] = [255, 255, 255]
+bw_map[map < -1] = [255, 255, 255]
+bw_map[map == 0] = [0, 0, 0]
+bw_map[map == -1] = [128, 128, 128]
+img = Image.fromarray(bw_map, mode='RGB')
+img = img.resize((500, 500))
 img = img.rotate(90)
 img.save('./my.png')
 
