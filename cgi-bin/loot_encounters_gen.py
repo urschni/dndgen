@@ -66,9 +66,13 @@ gems = {
 def print_loot(loot):
     output = ""
     for item in loot:
-        number, kind, value = item
-        value = currency_split(value, 'gp')
-        output += str(number) + 'x ' + kind + ', ' + str(value) + '<br>\n'
+        number, kind, value = item[:3]
+        value = currency_split(value, 'cp')
+        if len(item) > 3:
+            link = item[3]
+            output += str(number) + 'x <a href=\"' + link + '\" target=\"_blank\">' + kind + '</a>, ' + str(value) + '<br>\n'
+        else:
+            output += str(number) + 'x ' + kind + ', ' + str(value) + '<br>\n'
     return output
 
 '''
@@ -138,6 +142,7 @@ def currency_split(value, currency):
 Function that gives back the exact loot of PP, GP, SP and CP for a given amount of CP
 It tries to use the least amount of coins
 '''
+
 def exchange_cp(value):
     assert isinstance(value, int)
     assert value >= 0
@@ -160,7 +165,7 @@ def exchange_cp(value):
     return loot
 
 '''
-Returns all gems fitting into the budget
+Returns all gems fitting into the budget, given in CP
 It tries to fit the biggest gems first and than fills up the rest with smaller ones until no smaller gem fits
 '''
 
@@ -207,7 +212,7 @@ def get_random_loot_object(itemDB, budget, category=None):
     randomItem = cursor.fetchone()
     randomItem = list(randomItem)
     if 'lbs' in randomItem[item_columns.index('weight')]:
-        weight = str(item_columns.index('weight'))
+        weight = str(randomItem[item_columns.index('weight')])
         weight_int = weight[0:weight.index(' ')]
         randomItem[item_columns.index('weight')] = int(weight_int) + 0.5
     else:
@@ -238,7 +243,8 @@ def gen_loot(cr, progression_speed=1):
         nextLoot = get_random_loot_object(itemDB, item_budget_left)
         name = nextLoot[item_columns.index('name')]
         value = nextLoot[item_columns.index('price')]
-        loot.append((1, name, value))
+        link = nextLoot[item_columns.index('link')]
+        loot.append((1, name, value, link))
         item_budget_left -= value
     currency_budget = budget - sum([a[2] for a in loot])
     # between 30 % and 70 % of the currency is gems
@@ -254,4 +260,5 @@ def gen_loot(cr, progression_speed=1):
 
 
 if __name__ == '__main__':
-    print(gen_loot(2))
+    for a in range(0, 10000):
+        gen_loot(5)
