@@ -28,7 +28,7 @@ def printResponse(debug, name, attributes, encounters):
 	if debug:
 		print("<h2>Values:</h2>")
 		print(attributes)
-	print("<br><img src=\"/my.png\" alt=\"Dungeon Map\"> style=\"width:500px\"<br>")
+	print("<br><img src=\"/my.png\" alt=\"Dungeon Map\" style=\"width:500px\"><br>")
 	print(encounters)
 	print("</div>")
 	print("<div class=\"gitlink\"><br><a href=\"https://github.com/urschni/dndgen\"><img src=\"http://localhost:8000/graphics/GithubLogo.png\" alt=\"Github Link\" style=\"width:150px\"></a></div>")
