@@ -6,6 +6,7 @@ from monster_encounters_gen import *
 from response_gen import *
 from random import randint
 from PIL import Image
+from PIL import ImageDraw
 import numpy as np
 
 cgitb.enable()
@@ -128,7 +129,11 @@ bw_map[map == 9] = [128, 0, 0]
 bw_map[map == 6] = [128, 0, 0]
 img = Image.fromarray(bw_map, mode='RGB')
 img = img.resize(img_res)
-img = img.rotate(90)
+img.save('./my.png')
+
+img = Image.open('./my.png')
+draw = ImageDraw.Draw(img)
+draw.text((250, 250),"hold the door",(255,255,255))
 img.save('./my.png')
 
 include_debug = True
