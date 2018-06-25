@@ -127,7 +127,7 @@ bw_map[map == 2.5] = [128, 128, 128]
 bw_map[map == 9] = [128, 0, 0]
 bw_map[map == 6] = [128, 0, 0]
 img = Image.fromarray(bw_map, mode='RGB')
-img = img.resize((500, 500))
+img = img.resize(img_res)
 img = img.rotate(90)
 img.save('./my.png')
 
