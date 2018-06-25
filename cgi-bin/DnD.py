@@ -1,5 +1,6 @@
 __author__ = 'tunghoang'
 from random import randint, choice
+from Road import *
 from math import *
 import numpy as np
 import matplotlib.pyplot as plt
@@ -23,7 +24,7 @@ class Dungeon:
         self.percentage = int (percentage/10)
         self.widthOfMap = width
         self.heightOfMap = height
-        temp = np.zeros((self.heightOfMap,self.widthOfMap), dtype=np.int)
+        temp = np.zeros((self.heightOfMap,self.widthOfMap), dtype=np.float)
         self.dMap = temp
 
 
@@ -63,7 +64,7 @@ class Dungeon:
         self.borderCalculating(x_pos, y_pos, w, h, color)
 
         # Raum erstellen
-        self.dMap[y_pos - int(h/2):y_pos + (h - int(h/2)),x_pos - int(w/2):x_pos + (w - int(w/2))] = 10
+        self.dMap[y_pos - int(h/2):y_pos + (h - int(h/2)),x_pos - int(w/2):x_pos + (w - int(w/2))] = 7.0
 
 
 
@@ -120,12 +121,12 @@ class Dungeon:
 
             # größste Raum
             if (big != 0):
-                self.roomInitializing(random,(floor((random[1][0] - random[0][0])/2 - 1),floor((random[1][1] - random[0][1])/2 - 1)),5)
+                self.roomInitializing(random,(floor((random[1][0] - random[0][0])/2 - 1),floor((random[1][1] - random[0][1])/2 - 1)),count)
                 big -= 1
 
             # normale Raum
             elif(normal != 0):
-                self.roomInitializing(random,(floor((random[1][0] - random[0][0])/3 - 1),floor((random[1][1] - random[0][1])/3 - 1)),5)
+                self.roomInitializing(random,(floor((random[1][0] - random[0][0])/3 - 1),floor((random[1][1] - random[0][1])/3 - 1)),count)
                 normal -= 1
 
             # kleine Raum
@@ -208,16 +209,21 @@ class Dungeon:
 
     # Weg erstellen
     def roadCreating(self):
-        print(self.borders)
-        for key in range(1,len(self.borders)):
-            start = self.borders.get(key)[0]
-            end = self.borders.get(key+1)[1]#randint(0,len(self.borders.get(key+1)))
-            print(start)
-            print(end)
 
-            #road = Road(self.dMap,start,end)
-            #road.fillRoad(self.dMap)
-            #self.roads.append(road)
+        r = Road(self.dMap)
+
+        for key in self.borders.keys():
+            if (key > min(self.borders.keys())):
+                try:
+                    #print(self.borders[key])
+                    b = choice(self.borders[key])
+                    c = choice(self.borders[key -1])
+                    r.roadCreating(b,c,0,0)
+                    r.fillRoad(b,c)
+                    r.road =[]
+                except RecursionError as re:
+                    print('Sorry but this maze solver was not able to finish '
+                     'analyzing the maze: {}'.format(re.args[0]))
 
 
     # Dungeon zurückgeben
@@ -236,8 +242,9 @@ class Dungeon:
         return self.borders
 
 if __name__ == '__main__':
-    test = Dungeon(10,10,40)
-    test.multiRoom(2,5)
+    test = Dungeon(15,15,40)
+    test.multiRoom(2,3)
+    test.roadCreating()
     #y,x,h,w = test.roomInitializing(((0,0),(10,10)),(3,3),1)
     #print( y,x,h,w)
 
@@ -245,8 +252,8 @@ if __name__ == '__main__':
 
     b = test.returnArray()
 
-    test.fillBorder()
-
+    #test.fillBorder()
+    print(b)
 
 
     arr = test.returnArray()
