@@ -103,11 +103,11 @@ img_res = (img_len,img_height)
 
 #Create Dungeon
 dungeon = Dungeon(dungeon_size[0], dungeon_size[1], 50)
-dungeon.multiRoom(5, 2)
+dungeon.multiRoom(3, 5)
 map = dungeon.returnArray()
 
 #Generate encounter
-number_of_encounter = np.amax(map) - 1
+number_of_encounter = int(np.amax(map) - 1)
 encounter = ''
 if monster_allow or loot_allow:
     encounter = '<h2>Encounter</h2>\n'
