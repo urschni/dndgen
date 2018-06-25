@@ -62,11 +62,11 @@ else:
 		max_room_size = (7, 7)
 #Process room_density
 if room_density == 'low':
-	room_density = 0.5
+	room_density = [2,4]
 elif room_density == 'medium':
-	room_density = 1
+	room_density = [3,6]
 else:
-	room_density = 1.5
+	room_density = [4,8]
 #Process dungeon_lvl
 dungeon_lvl = int(dungeon_lvl)
 #Process party_size
@@ -104,12 +104,12 @@ img_res = (img_len,img_height)
 
 #Create Dungeon
 dungeon = Dungeon(dungeon_size[0], dungeon_size[1], 50)
-dungeon.multiRoom(2, 3)
+dungeon.multiRoom(room_density[0],room_density[1])
 dungeon.roadCreating()
 map = dungeon.returnArray()
 
 #Generate encounter
-number_of_encounter = int(np.amax(map) - 1)
+number_of_encounter = room_density[1]+1
 encounter = ''
 if monster_allow or loot_allow:
     encounter = '<h2>Encounter</h2>\n'
