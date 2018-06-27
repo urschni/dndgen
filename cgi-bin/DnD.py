@@ -1,24 +1,27 @@
 __author__ = 'tunghoang'
 from random import randint, choice
-from RoadVer056 import *
+from Road import *
 from math import *
 import numpy as np
 import matplotlib.pyplot as plt
+
 #from Road import Road
 """
 Dnd Generator version 0.060
 """
+
+
 class Room:
-    border ={}
+    border = {}
     roomID = 0
     fieldID = 0
-    field = ((0,0),(0,0))
+    field = ((0, 0), (0, 0))
     safety = 0
-    shape = [0,0]    #(height,width)
-    position = [0,0] #(y,x)
-    randomField = ((0,0),(0,0))
+    shape = [0, 0]  #(height,width)
+    position = [0, 0]  #(y,x)
+    randomField = ((0, 0), (0, 0))
 
-    def __init__(self, field, safety, id ,fieldId):
+    def __init__(self, field, safety, id, fieldId):
         self.roomID = id
         self.fieldID = fieldId
         self.field = field
@@ -35,60 +38,58 @@ class Room:
         :return:
         """
 
-
-        self.randomField = [(self.field[0][0] +  self.safety[0],self.field[0][1] +  self.safety[1]),(self.field[1][0] - (1 +  self.safety[0]),self.field[1][1] - (1 +  self.safety[1]))]
-        self.position[0], self.position[1] = randint(self.randomField[0][0],self.randomField[1][0]) , randint(self.randomField[0][1],self.randomField[1][1])
+        self.randomField = [(self.field[0][0] + self.safety[0], self.field[0][1] + self.safety[1]), (self.field[1][0] - (1 + self.safety[0]), self.field[1][1] - (1 + self.safety[1]))]
+        self.position[0], self.position[1] = randint(self.randomField[0][0], self.randomField[1][0]), randint(self.randomField[0][1], self.randomField[1][1])
 
         # Falls das zufällige Feld zu klein ist, passen sich die Breite und die Höhe von Räume an
-        if ( self.safety[0] != 0 and  self.safety[1] != 0):
-            if (self.field[1][0]%2 == 0):     self.shape[0] = randint( self.safety[0], self.safety[0]* 2)
-            else:                             self.shape[0] = randint( self.safety[0],( self.safety[0]*2) - 1 )
-            if (self.field[1][1]%2 == 0):     self.shape[1] = randint( self.safety[1], self.safety[1]* 2)
-            else:                             self.shape[1] = randint( self.safety[1],( self.safety[1]*2) - 1 )
+        if (self.safety[0] != 0 and self.safety[1] != 0):
+            if (self.field[1][0] % 2 == 0):
+                self.shape[0] = randint(self.safety[0], self.safety[0] * 2)
+            else:
+                self.shape[0] = randint(self.safety[0], (self.safety[0] * 2) - 1)
+            if (self.field[1][1] % 2 == 0):
+                self.shape[1] = randint(self.safety[1], self.safety[1] * 2)
+            else:
+                self.shape[1] = randint(self.safety[1], (self.safety[1] * 2) - 1)
         else:
-            self.shape[0] ,self.shape[1]  = randint(1,2), randint(1,2)
+            self.shape[0], self.shape[1] = randint(1, 2), randint(1, 2)
 
         # Falls 1 oder 2 Richtung von Räume neben der Grenze von der Karte
-        if (self.position[0] -  int(self.shape[0]/2) <= self.field[0][0]):                      self.position[0] += 1
-        if ((self.position[0] + (self.shape[0] - int(self.shape[0]/2))) >= self.field[1][0]):   self.position[0] -= 1
-        if (self.position[1] - int(self.shape[1]/2) <= self.field[0][1]):                       self.position[1] += 1
-        if ((self.position[1] + (self.shape[1] - int(self.shape[1]/2))) >= self.field[1][1]):   self.position[1] -= 1
-
+        if (self.position[0] - int(self.shape[0] / 2) <= self.field[0][0]):                      self.position[0] += 1
+        if ((self.position[0] + (self.shape[0] - int(self.shape[0] / 2))) >= self.field[1][0]):   self.position[0] -= 1
+        if (self.position[1] - int(self.shape[1] / 2) <= self.field[0][1]):                       self.position[1] += 1
+        if ((self.position[1] + (self.shape[1] - int(self.shape[1] / 2))) >= self.field[1][1]):   self.position[1] -= 1
 
         # Raum erstellen
         #self.dMap[y_pos - int(h/2):y_pos + (h - int(h/2)),x_pos - int(w/2):x_pos + (w - int(w/2))] = 7
 
-    def mapImplement(self,map,value):
+    def mapImplement(self, map, value):
 
         #Map[y_pos - int(h/2):y_pos + (h - int(h/2)),x_pos - int(w/2):x_pos + (w - int(w/2))] = 7
-        map[self.position[0] - int(self.shape[0]/2):self.position[0] + (self.shape[0] - int(self.shape[0]/2)),self.position[1] - int(self.shape[1]/2):self.position[1] + (self.shape[1] - int(self.shape[1]/2))] = value
+        map[self.position[0] - int(self.shape[0] / 2):self.position[0] + (self.shape[0] - int(self.shape[0] / 2)), self.position[1] - int(self.shape[1] / 2):self.position[1] + (self.shape[1] - int(self.shape[1] / 2))] = value
         self.borderCalculating(map)
 
+    def borderCalculating(self, map):
 
+        top = self.position[0] - int(self.shape[0] / 2)
+        bottom = self.position[0] + (self.shape[0] - int(self.shape[0] / 2))
+        left = self.position[1] - int(self.shape[1] / 2)
+        right = self.position[1] + (self.shape[1] - int(self.shape[1] / 2))
 
-    def borderCalculating(self,map):
+        for x_axis in range(left, right):
 
-
-        top =       self.position[0] - int(self.shape[0]/2)
-        bottom =    self.position[0] + (self.shape[0] - int(self.shape[0]/2))
-        left =      self.position[1] - int(self.shape[1]/2)
-        right =     self.position[1] + (self.shape[1] - int(self.shape[1]/2))
-
-
-        for x_axis in range(left,right):
-
-            if ((top - 1) >= 0 ):
+            if ((top - 1) >= 0):
                 self.border.setdefault('top', []).append((top - 1, x_axis))
 
-            if ((bottom + 1) <= np.shape(map)[0] ):
-                 self.border.setdefault('bottom', []).append((bottom, x_axis))
+            if ((bottom + 1) <= np.shape(map)[0]):
+                self.border.setdefault('bottom', []).append((bottom, x_axis))
 
-        for y_axis in range(top,bottom):
+        for y_axis in range(top, bottom):
             #print("x_axis = {} top = {} | bottom = {} ".format(y_axis,top,bottom))
             if ((left - 1) >= 0):
-                self.border.setdefault('left', []).append((y_axis, left -1))
+                self.border.setdefault('left', []).append((y_axis, left - 1))
             if ((right + 1) <= np.shape(map)[1]):
-                 self.border.setdefault('right', []).append((y_axis, right))
+                self.border.setdefault('right', []).append((y_axis, right))
 
     def getID(self):
         temp = self.roomID
@@ -102,36 +103,36 @@ class Room:
         temp = self.shape
         return temp
 
-    def getBorder(self,direction):
+    def getBorder(self, direction):
         if ((direction == 'top') or (direction == 'top') or (direction == 'top') or (direction == 'top')):
             temp = self.border.get(direction)
             return temp
         else:
-            print ("Error!!!")
+            print("Error!!!")
             return 0
 
+
 class Dungeon:
-    dMap =[]
-    roomField =[]
+    dMap = []
+    roomField = []
     percentage = 50
     widthOfMap = 0
     heightOfMap = 0
-    roads =[]
+    roads = []
     borders = {}
     room = {}
 
     # Initialisierung vom Dungeon
-    def __init__(self,width,height,percentage):
+    def __init__(self, width, height, percentage):
 
-        self.percentage = int (percentage/10)
+        self.percentage = int(percentage / 10)
         self.widthOfMap = width
         self.heightOfMap = height
-        temp = np.zeros((self.heightOfMap,self.widthOfMap), dtype=np.int)
+        temp = np.zeros((self.heightOfMap, self.widthOfMap), dtype=np.int)
         self.dMap = temp
 
-
     # mehrere Räume erstellen
-    def multiRoom(self,interval,numberOfRoom):
+    def multiRoom(self, interval, numberOfRoom):
 
         """
         :param interval         um die beste Weise von der Partition zu kontrollieren:
@@ -139,8 +140,7 @@ class Dungeon:
         :return:
         """
 
-
-        partition = self.roomPartition(self.factors(numberOfRoom),interval)
+        partition = self.roomPartition(self.factors(numberOfRoom), interval)
         count = numberOfRoom
 
         # die Faktoren werden von jeder Koordinate (x oder y) zufällig ausgewählt
@@ -152,20 +152,19 @@ class Dungeon:
             print("not acceptable!!!")
             return 0
 
-
         # die Karte wird kleiner geteilt
-        y_axis = np.arange(0,self.heightOfMap + 1,int(self.heightOfMap / y_patition))
-        x_axis = np.arange(0,self.widthOfMap + 1,int(self.widthOfMap / x_patition))
+        y_axis = np.arange(0, self.heightOfMap + 1, int(self.heightOfMap / y_patition))
+        x_axis = np.arange(0, self.widthOfMap + 1, int(self.widthOfMap / x_patition))
 
         # den Mangel ergänzen
-        if (max(y_axis) != self.heightOfMap ):    y_axis[len(y_axis) -1 ] = self.heightOfMap
-        if (max(x_axis) != self.widthOfMap ):    x_axis[len(x_axis) -1 ] = self.widthOfMap
+        if (max(y_axis) != self.heightOfMap):    y_axis[len(y_axis) - 1] = self.heightOfMap
+        if (max(x_axis) != self.widthOfMap):    x_axis[len(x_axis) - 1] = self.widthOfMap
 
         # die Liste von den zufälligen Feldern
         randomZone = []
-        for r in range(1,len(y_axis)):
-            for c in range(1,len(x_axis)):
-                randomZone.append(((y_axis[r - 1] ,x_axis[c - 1]),((y_axis[r]  ,x_axis[c] ))))
+        for r in range(1, len(y_axis)):
+            for c in range(1, len(x_axis)):
+                randomZone.append(((y_axis[r - 1], x_axis[c - 1]), ((y_axis[r], x_axis[c]))))
 
         """
         + big, normal, small: die Größe von Räume kontrollieren
@@ -174,33 +173,32 @@ class Dungeon:
 
         big, normal, small = self.sizeControl(numberOfRoom)
 
-
         # Räume in den zufälligen Feldern erzeugt
-        while (count !=  0):
+        while (count != 0):
 
             random = choice(randomZone)
 
             # größste Raum
             if (big != 0):
 
-                b = Room(random,(floor((random[1][0] - random[0][0])/2 - 1),floor((random[1][1] - random[0][1])/2 - 1)),count,1)
+                b = Room(random, (floor((random[1][0] - random[0][0]) / 2 - 1), floor((random[1][1] - random[0][1]) / 2 - 1)), count, 1)
                 #print("field = {}, safe = {}, roomID = {}, fieldID = {}, shape = {}".format(b.field,b.safety,b.roomID,b.fieldID,b.shape))
-                b.mapImplement(self.dMap,10)
+                b.mapImplement(self.dMap, 10)
 
                 big -= 1
 
             # normale Raum
-            elif(normal != 0):
-                n = Room(random,(floor((random[1][0] - random[0][0])/2.5 - 1),floor((random[1][1] - random[0][1])/2.5 - 1)),count,1)
+            elif (normal != 0):
+                n = Room(random, (floor((random[1][0] - random[0][0]) / 2.5 - 1), floor((random[1][1] - random[0][1]) / 2.5 - 1)), count, 1)
                 #print("field = {}, safe = {}, roomID = {}, fieldID = {}, shape = {}".format(n.field,n.safety,n.roomID,n.fieldID,n.shape))
-                n.mapImplement(self.dMap,5)
+                n.mapImplement(self.dMap, 5)
                 normal -= 1
 
             # kleine Raum
-            elif(small != 0):
-                s = Room(random,(1,1),count,1)
+            elif (small != 0):
+                s = Room(random, (1, 1), count, 1)
                 #print("field = {}, safe = {}, roomID = {}, fieldID = {}, shape = {}".format(s.field,s.safety,s.roomID,s.fieldID,s.shape))
-                s.mapImplement(self.dMap,3)
+                s.mapImplement(self.dMap, 3)
                 small -= 1
 
             randomZone.remove(random)
@@ -208,20 +206,19 @@ class Dungeon:
 
         return self.dMap
 
-
     # 2 nächste Faktoren von der Anzahl des Raumes berechnen
     def factors(self, n):
 
         a = floor(sqrt(n))
-        while(True):
-            if ((n%a) == 0 ):
-                b = int(n/a)
-                return [a,b]
+        while (True):
+            if ((n % a) == 0):
+                b = int(n / a)
+                return [a, b]
             else:
-                a-=1
+                a -= 1
 
     # die Karte partitionieren
-    def roomPartition(self, factor,interval):
+    def roomPartition(self, factor, interval):
 
         """
         :param factor:      nächste Faktoren von der Anzahl des Raumes
@@ -244,12 +241,10 @@ class Dungeon:
         return result
 
     # Größe von Räume kontrollieren
-    def sizeControl(self,numberOfRoom):
-        if (numberOfRoom == 1): return [1,0,0]
-        if (numberOfRoom == 2): return [1,1,0]
-        if (numberOfRoom > 2):  return ceil((30 * numberOfRoom)/ 100), floor((50 * numberOfRoom)/ 100) ,abs(numberOfRoom - (ceil((30 * numberOfRoom)/ 100) + floor((50 * numberOfRoom)/ 100)))
-
-
+    def sizeControl(self, numberOfRoom):
+        if (numberOfRoom == 1): return [1, 0, 0]
+        if (numberOfRoom == 2): return [1, 1, 0]
+        if (numberOfRoom > 2):  return ceil((30 * numberOfRoom) / 100), floor((50 * numberOfRoom) / 100), abs(numberOfRoom - (ceil((30 * numberOfRoom) / 100) + floor((50 * numberOfRoom) / 100)))
 
     # Weg erstellen
     def roadCreating(self):
@@ -261,14 +256,13 @@ class Dungeon:
                 try:
                     #print(self.borders[key])
                     b = choice(self.borders[key])
-                    c = choice(self.borders[key -1])
-                    r.roadCreating(b,c,0,0)
-                    r.fillRoad(b,c)
-                    r.road =[]
+                    c = choice(self.borders[key - 1])
+                    r.roadCreating(b, c, 0, 0)
+                    r.fillRoad(b, c)
+                    r.road = []
                 except RecursionError as re:
                     print('Sorry but this maze solver was not able to finish '
-                     'analyzing the maze: {}'.format(re.args[0]))
-
+                          'analyzing the maze: {}'.format(re.args[0]))
 
     # Dungeon zurückgeben
     def returnArray(self):
@@ -277,23 +271,21 @@ class Dungeon:
     def fillBorder(self):
         for key in self.borders:
             for val in self.borders.get(key):
-
-                self.dMap[val[0],val[1]] += 2
+                self.dMap[val[0], val[1]] += 2
 
         return self.dMap
 
     def getBorder(self):
         return self.borders
 
+
 if __name__ == '__main__':
-    test = Dungeon(15,15,40)
-    test.multiRoom(2,4)
+    test = Dungeon(15, 15, 40)
+    test.multiRoom(2, 4)
 
     print(test.returnArray())
     print("\n")
 
-
     arr = test.returnArray()
-    plt.imshow(arr, interpolation='nearest',cmap=plt.cm.gray)
+    plt.imshow(arr, interpolation='nearest', cmap=plt.cm.gray)
     plt.show()
-
