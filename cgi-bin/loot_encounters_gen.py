@@ -75,28 +75,33 @@ def print_loot(loot):
             output += str(number) + 'x ' + kind + ', ' + str(value) + '<br>\n'
     return output
 
+
 '''
 Function to get smaller or bigger CR
 cr is the actual CR and "change_by" gives the number of steps to make cr bigger (positive number) or smaller (negative number)
 '''
+
+
 def get_next_cr(cr, change_by):
     assert (isinstance(change_by, int))
     assert (isinstance(cr, (int, float)))
     assert cr in cr_table
     temp_cr = cr_table.index(cr) + change_by
-    if (temp_cr < 0):
-        #print("CR is lower than 1/8")
+    if temp_cr < 0:
+        # print("CR is lower than 1/8")
         return 1.8
-    elif (temp_cr > 34):
-        #print("CR is bigger than 30, ")
+    elif temp_cr > 34:
+        # print("CR is bigger than 30, ")
         return 30
     return cr_table[temp_cr]
 
 
 '''
 Function to get a value in cp dependent on the currency
-currency can have the following currencys: cp, sp, gp, pp
+currency can have the following currencies: cp, sp, gp, pp
 '''
+
+
 def get_cp(number, currency):
     assert isinstance(number, int)
     assert isinstance(currency, str)
@@ -119,6 +124,8 @@ def get_cp(number, currency):
 Function to split an integer value into pp, gp, sp and cp to print it out
 output format: str with W pp X gp Y sp Z cp if W,X,Y,Z is bigger than 0
 '''
+
+
 def currency_split(value, currency):
     if isinstance(value, str):
         value = int(value)
@@ -138,10 +145,12 @@ def currency_split(value, currency):
         value -= int(value)
     return value_str
 
+
 '''
 Function that gives back the exact loot of PP, GP, SP and CP for a given amount of CP
 It tries to use the least amount of coins
 '''
+
 
 def exchange_cp(value):
     assert isinstance(value, int)
@@ -152,7 +161,7 @@ def exchange_cp(value):
     if isinstance(value, str):
         value = int(value)
     if value >= 1000:
-        loot.append((int(value / 1000), 'PP', int(value / 1000)*1000))
+        loot.append((int(value / 1000), 'PP', int(value / 1000) * 1000))
         value -= int(value / 1000)
     elif value >= 100:
         loot.append((int(value / 100), 'GP', int(value / 100) * 100))
@@ -164,10 +173,12 @@ def exchange_cp(value):
         loot.append((value, 'CP', value))
     return loot
 
+
 '''
 Returns all gems fitting into the budget, given in CP
 It tries to fit the biggest gems first and than fills up the rest with smaller ones until no smaller gem fits
 '''
+
 
 def get_value_in_gems(budget):
     loot = []
@@ -176,14 +187,15 @@ def get_value_in_gems(budget):
         return loot
     while budget > min(gem_values):
         smallest_fitting_gem = gem_values[bisect(gem_values, budget) - 1]
-        #print(smallest_fitting_gem)
+        # print(smallest_fitting_gem)
         number = int(budget / smallest_fitting_gem)
-        #print(number)
+        # print(number)
         budget = budget - number * smallest_fitting_gem
-        #print('budget', budget)
+        # print('budget', budget)
         loot.append((number, gems[smallest_fitting_gem][randint(0, len(gems[smallest_fitting_gem]) - 1)], number * smallest_fitting_gem))
-    #print(loot)
+    # print(loot)
     return loot
+
 
 '''
 Get one random object from the item database, budget is given in cp
@@ -191,33 +203,36 @@ The resulting item has a value between budget and budget/10
 '''
 
 item_columns = ['name', 'price', 'weight', 'link']
-def get_random_loot_object(itemDB, budget, category=None):
+
+
+def get_random_loot_object(item_db, budget, category=None):
     item_columns_sql = ', '.join(item_columns)
-    cursor = itemDB.cursor()
+    cursor = item_db.cursor()
     if category is None:
         cursor.execute('SELECT ' + item_columns_sql + ' FROM items WHERE price <= ' + str(budget)
-                       + ' AND price >= ' + str(round(budget/10)) + ' ORDER BY random() LIMIT 1;')
+                       + ' AND price >= ' + str(round(budget / 10)) + ' ORDER BY random() LIMIT 1;')
     else:
         if not isinstance(category, list):
             types = [category]
         category_sql = "("
-        for act_category in category:
+        for act_category in types:
             category_sql += "\'" + act_category + "\',"
         category_sql = category_sql[:-1] + ")"
         cursor.execute('SELECT ' + item_columns_sql + ' FROM items WHERE price <= ' + str(budget)
-                       + ' AND price >= ' + str(round(budget/10))
+                       + ' AND price >= ' + str(round(budget / 10))
                        + ' AND category in ' + category_sql
                        + ' ORDER BY random() LIMIT 1;')
-    itemDB.commit()
-    randomItem = cursor.fetchone()
-    randomItem = list(randomItem)
-    if 'lbs' in randomItem[item_columns.index('weight')]:
-        weight = str(randomItem[item_columns.index('weight')])
+    item_db.commit()
+    random_item = cursor.fetchone()
+    random_item = list(random_item)
+    if 'lbs' in random_item[item_columns.index('weight')]:
+        weight = str(random_item[item_columns.index('weight')])
         weight_int = weight[0:weight.index(' ')]
-        randomItem[item_columns.index('weight')] = int(weight_int) + 0.5
+        random_item[item_columns.index('weight')] = int(weight_int) + 0.5
     else:
-        randomItem[item_columns.index('weight')] = float(randomItem[item_columns.index('weight')] )
-    return randomItem
+        random_item[item_columns.index('weight')] = float(random_item[item_columns.index('weight')])
+    return random_item
+
 
 '''
 Generate one loot, e. g. for one room, dependent on the CR and the progression_speed
@@ -231,24 +246,24 @@ def gen_loot(cr, progression_speed=1):
 
     budget = treasure_per_encounter[cr][progression_speed]
     budget = get_cp(budget, 'gp')
-    itemDB = openDB()[1]
+    item_db = openDB()[1]
 
     # loot contains elements with the structure (number of object, object, value)
     loot = []
-    percentage_of_budget_in_items = randint(70, 100)/100
+    percentage_of_budget_in_items = randint(70, 100) / 100
     item_budget = round(budget * percentage_of_budget_in_items)
     item_budget_left = item_budget
-	# make sure that 95 % of the item budget are used
-    while item_budget_left > item_budget*0.95:
-        nextLoot = get_random_loot_object(itemDB, item_budget_left)
-        name = nextLoot[item_columns.index('name')]
-        value = nextLoot[item_columns.index('price')]
-        link = nextLoot[item_columns.index('link')]
+    # make sure that 95 % of the item budget are used
+    while item_budget_left > item_budget * 0.95:
+        next_loot = get_random_loot_object(item_db, item_budget_left)
+        name = next_loot[item_columns.index('name')]
+        value = next_loot[item_columns.index('price')]
+        link = next_loot[item_columns.index('link')]
         loot.append((1, name, value, link))
         item_budget_left -= value
-    currency_budget = budget - sum([a[2] for a in loot])
+    currency_budget = budget - sum([_[2] for _ in loot])
     # between 30 % and 70 % of the currency is gems
-    gem_budget = round(currency_budget * randint(30, 70)/100)
+    gem_budget = round(currency_budget * randint(30, 70) / 100)
     gem_loot = get_value_in_gems(gem_budget)
     if gem_loot:
         currency_budget_left = currency_budget - sum([gem[2] for gem in gem_loot])
