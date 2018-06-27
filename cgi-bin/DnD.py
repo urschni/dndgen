@@ -1,36 +1,32 @@
 __author__ = 'tunghoang'
 from random import randint, choice
+from RoadVer056 import *
 from math import *
 import numpy as np
 import matplotlib.pyplot as plt
 #from Road import Road
 """
-Dnd Generator version 0.054
+Dnd Generator version 0.060
 """
+class Room:
+    border ={}
+    roomID = 0
+    fieldID = 0
+    field = ((0,0),(0,0))
+    safety = 0
+    shape = [0,0]    #(height,width)
+    position = [0,0] #(y,x)
+    randomField = ((0,0),(0,0))
 
-class Dungeon:
-    dMap =[]
-    roomField =[]
-    percentage = 50
-    widthOfMap = 0
-    heightOfMap = 0
-    roads =[]
-    borders = {}
+    def __init__(self, field, safety, id ,fieldId):
+        self.roomID = id
+        self.fieldID = fieldId
+        self.field = field
+        self.roomID = id
+        self.safety = safety
+        self.initializing()
 
-    # Initialisierung vom Dungeon
-    def __init__(self,width,height,percentage):
-
-        self.percentage = int (percentage/10)
-        self.widthOfMap = width
-        self.heightOfMap = height
-        temp = np.zeros((self.heightOfMap,self.widthOfMap), dtype=np.int)
-        self.dMap = temp
-
-
-
-
-    # Initialisierung vom Raum
-    def roomInitializing(self,field, safety,color):
+    def initializing(self):
 
         """
         :param field:       wird basis wie so definiert: ((y_min,x_min),(y_max,x_max)) also die diagonale Kante vom zufälligen Feld
@@ -40,32 +36,98 @@ class Dungeon:
         """
 
 
-        randomfield = [(field[0][0] +  safety[0],field[0][1] +  safety[1]),(field[1][0] - (1 +  safety[0]),field[1][1] - (1 +  safety[1]))]
-        y_pos, x_pos = randint(randomfield[0][0],randomfield[1][0]) , randint(randomfield[0][1],randomfield[1][1])
+        self.randomField = [(self.field[0][0] +  self.safety[0],self.field[0][1] +  self.safety[1]),(self.field[1][0] - (1 +  self.safety[0]),self.field[1][1] - (1 +  self.safety[1]))]
+        self.position[0], self.position[1] = randint(self.randomField[0][0],self.randomField[1][0]) , randint(self.randomField[0][1],self.randomField[1][1])
 
         # Falls das zufällige Feld zu klein ist, passen sich die Breite und die Höhe von Räume an
-        if ( safety[0] != 0 and  safety[1] != 0):
-            if (field[1][0]%2 == 0):     h = randint( safety[0], safety[0]* 2)
-            else:                        h = randint( safety[0],( safety[0]*2) - 1 )
-            if (field[1][1]%2 == 0):     w = randint( safety[1], safety[1]* 2)
-            else:                        w = randint( safety[1],( safety[1]*2) - 1 )
+        if ( self.safety[0] != 0 and  self.safety[1] != 0):
+            if (self.field[1][0]%2 == 0):     self.shape[0] = randint( self.safety[0], self.safety[0]* 2)
+            else:                             self.shape[0] = randint( self.safety[0],( self.safety[0]*2) - 1 )
+            if (self.field[1][1]%2 == 0):     self.shape[1] = randint( self.safety[1], self.safety[1]* 2)
+            else:                             self.shape[1] = randint( self.safety[1],( self.safety[1]*2) - 1 )
         else:
-            h,w = randint(1,2), randint(1,2)
+            self.shape[0] ,self.shape[1]  = randint(1,2), randint(1,2)
 
         # Falls 1 oder 2 Richtung von Räume neben der Grenze von der Karte
-        if (y_pos - int(h/2) <= field[0][0]):           y_pos += 1
-        if ((y_pos + (h - int(h/2))) >= field[1][0]):   y_pos -= 1
-        if (x_pos - int(w/2) <= field[0][1]):           x_pos += 1
-        if ((x_pos + (w - int(w/2))) >= field[1][1]):   x_pos -= 1
+        if (self.position[0] -  int(self.shape[0]/2) <= self.field[0][0]):                      self.position[0] += 1
+        if ((self.position[0] + (self.shape[0] - int(self.shape[0]/2))) >= self.field[1][0]):   self.position[0] -= 1
+        if (self.position[1] - int(self.shape[1]/2) <= self.field[0][1]):                       self.position[1] += 1
+        if ((self.position[1] + (self.shape[1] - int(self.shape[1]/2))) >= self.field[1][1]):   self.position[1] -= 1
 
-
-        # Grenze wird erzeugt, dann kann ein zufällige Knoten davon ausgewählt werden, um start- oder ende- Knoten zu werden
-        self.borderCalculating(x_pos, y_pos, w, h, color)
 
         # Raum erstellen
-        self.dMap[y_pos - int(h/2):y_pos + (h - int(h/2)),x_pos - int(w/2):x_pos + (w - int(w/2))] = 10
+        #self.dMap[y_pos - int(h/2):y_pos + (h - int(h/2)),x_pos - int(w/2):x_pos + (w - int(w/2))] = 7
+
+    def mapImplement(self,map,value):
+
+        #Map[y_pos - int(h/2):y_pos + (h - int(h/2)),x_pos - int(w/2):x_pos + (w - int(w/2))] = 7
+        map[self.position[0] - int(self.shape[0]/2):self.position[0] + (self.shape[0] - int(self.shape[0]/2)),self.position[1] - int(self.shape[1]/2):self.position[1] + (self.shape[1] - int(self.shape[1]/2))] = value
+        self.borderCalculating(map)
 
 
+
+    def borderCalculating(self,map):
+
+
+        top =       self.position[0] - int(self.shape[0]/2)
+        bottom =    self.position[0] + (self.shape[0] - int(self.shape[0]/2))
+        left =      self.position[1] - int(self.shape[1]/2)
+        right =     self.position[1] + (self.shape[1] - int(self.shape[1]/2))
+
+
+        for x_axis in range(left,right):
+
+            if ((top - 1) >= 0 ):
+                self.border.setdefault('top', []).append((top - 1, x_axis))
+
+            if ((bottom + 1) <= np.shape(map)[0] ):
+                 self.border.setdefault('bottom', []).append((bottom, x_axis))
+
+        for y_axis in range(top,bottom):
+            #print("x_axis = {} top = {} | bottom = {} ".format(y_axis,top,bottom))
+            if ((left - 1) >= 0):
+                self.border.setdefault('left', []).append((y_axis, left -1))
+            if ((right + 1) <= np.shape(map)[1]):
+                 self.border.setdefault('right', []).append((y_axis, right))
+
+    def getID(self):
+        temp = self.roomID
+        return temp
+
+    def getPosition(self):
+        temp = self.position
+        return temp
+
+    def getShape(self):
+        temp = self.shape
+        return temp
+
+    def getBorder(self,direction):
+        if ((direction == 'top') or (direction == 'top') or (direction == 'top') or (direction == 'top')):
+            temp = self.border.get(direction)
+            return temp
+        else:
+            print ("Error!!!")
+            return 0
+
+class Dungeon:
+    dMap =[]
+    roomField =[]
+    percentage = 50
+    widthOfMap = 0
+    heightOfMap = 0
+    roads =[]
+    borders = {}
+    room = {}
+
+    # Initialisierung vom Dungeon
+    def __init__(self,width,height,percentage):
+
+        self.percentage = int (percentage/10)
+        self.widthOfMap = width
+        self.heightOfMap = height
+        temp = np.zeros((self.heightOfMap,self.widthOfMap), dtype=np.int)
+        self.dMap = temp
 
 
     # mehrere Räume erstellen
@@ -120,17 +182,25 @@ class Dungeon:
 
             # größste Raum
             if (big != 0):
-                self.roomInitializing(random,(floor((random[1][0] - random[0][0])/2 - 1),floor((random[1][1] - random[0][1])/2 - 1)),5)
+
+                b = Room(random,(floor((random[1][0] - random[0][0])/2 - 1),floor((random[1][1] - random[0][1])/2 - 1)),count,1)
+                #print("field = {}, safe = {}, roomID = {}, fieldID = {}, shape = {}".format(b.field,b.safety,b.roomID,b.fieldID,b.shape))
+                b.mapImplement(self.dMap,10)
+
                 big -= 1
 
             # normale Raum
             elif(normal != 0):
-                self.roomInitializing(random,(floor((random[1][0] - random[0][0])/3 - 1),floor((random[1][1] - random[0][1])/3 - 1)),5)
+                n = Room(random,(floor((random[1][0] - random[0][0])/2.5 - 1),floor((random[1][1] - random[0][1])/2.5 - 1)),count,1)
+                #print("field = {}, safe = {}, roomID = {}, fieldID = {}, shape = {}".format(n.field,n.safety,n.roomID,n.fieldID,n.shape))
+                n.mapImplement(self.dMap,5)
                 normal -= 1
 
             # kleine Raum
             elif(small != 0):
-                self.roomInitializing(random,(1,1),count)
+                s = Room(random,(1,1),count,1)
+                #print("field = {}, safe = {}, roomID = {}, fieldID = {}, shape = {}".format(s.field,s.safety,s.roomID,s.fieldID,s.shape))
+                s.mapImplement(self.dMap,3)
                 small -= 1
 
             randomZone.remove(random)
@@ -180,44 +250,24 @@ class Dungeon:
         if (numberOfRoom > 2):  return ceil((30 * numberOfRoom)/ 100), floor((50 * numberOfRoom)/ 100) ,abs(numberOfRoom - (ceil((30 * numberOfRoom)/ 100) + floor((50 * numberOfRoom)/ 100)))
 
 
-    # die Grenze berechen
-    def borderCalculating(self, x_pos, y_pos, width, height, index ):
-
-
-        top = y_pos - int(height/2)
-        bottom = y_pos + (height - int(height/2))
-        left = x_pos - int(width/2)
-        right = x_pos + (width - int(width/2))
-
-
-        for x_axis in range(left,right):
-
-            if ((top - 1) >= 0 ):
-                self.borders.setdefault(index, []).append((top - 1, x_axis))
-
-            if ((bottom + 1) <= self.widthOfMap ):
-                self.borders.setdefault(index, []).append((bottom, x_axis))
-
-        for y_axis in range(top,bottom):
-            #print("x_axis = {} top = {} | bottom = {} ".format(y_axis,top,bottom))
-            if ((left - 1) >= 0):
-                self.borders.setdefault(index, []).append((y_axis, left -1))
-            if ((right + 1) <= self.heightOfMap):
-                self.borders.setdefault(index, []).append((y_axis, right))
-
 
     # Weg erstellen
     def roadCreating(self):
-        print(self.borders)
-        for key in range(1,len(self.borders)):
-            start = self.borders.get(key)[0]
-            end = self.borders.get(key+1)[1]#randint(0,len(self.borders.get(key+1)))
-            print(start)
-            print(end)
 
-            #road = Road(self.dMap,start,end)
-            #road.fillRoad(self.dMap)
-            #self.roads.append(road)
+        r = Road(self.dMap)
+
+        for key in self.borders.keys():
+            if (key > min(self.borders.keys())):
+                try:
+                    #print(self.borders[key])
+                    b = choice(self.borders[key])
+                    c = choice(self.borders[key -1])
+                    r.roadCreating(b,c,0,0)
+                    r.fillRoad(b,c)
+                    r.road =[]
+                except RecursionError as re:
+                    print('Sorry but this maze solver was not able to finish '
+                     'analyzing the maze: {}'.format(re.args[0]))
 
 
     # Dungeon zurückgeben
@@ -228,7 +278,7 @@ class Dungeon:
         for key in self.borders:
             for val in self.borders.get(key):
 
-                self.dMap[val[0],val[1]] += 2.5
+                self.dMap[val[0],val[1]] += 2
 
         return self.dMap
 
@@ -236,17 +286,11 @@ class Dungeon:
         return self.borders
 
 if __name__ == '__main__':
-    test = Dungeon(10,10,40)
-    test.multiRoom(2,5)
-    #y,x,h,w = test.roomInitializing(((0,0),(10,10)),(3,3),1)
-    #print( y,x,h,w)
+    test = Dungeon(15,15,40)
+    test.multiRoom(2,4)
 
+    print(test.returnArray())
     print("\n")
-
-    b = test.returnArray()
-
-    test.fillBorder()
-
 
 
     arr = test.returnArray()

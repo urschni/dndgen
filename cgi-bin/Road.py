@@ -1,10 +1,11 @@
 __author__ = 'tunghoang'
 import numpy as np
-from  DnD import Dungeon
+#from  DnD_0054 import Dungeon
+from math import *
 import matplotlib.pyplot as plt
-
+from random import randint, choice
 """
-Road Generator Version 1.0001
+Version 0.060
 """
 
 class Road:
@@ -101,46 +102,99 @@ class Road:
         temp = []
 
         return self.road
-    
 
-    # Weg auf der Karte einfügen
-    def fillRoad(self, map):
-        for road in self.road:
-            for node in road:
-                map[node[0]][node[1]] = 15
-        return map
+    def nearestPoint(self,node,start,end):
+        axis = 1
+        x = node[1]
+        y = node[0]
+        # top bottom left right
+        check =[False ,False ,False ,False]
+
+        while(axis < 100):
+            # top bottom left right
+            candidates = [(y - axis, x), (y + axis, x),(y,x - axis),(y,x + axis)]
+
+            for r in range(0,len(candidates)):
+                if candidates[r] in self.field:
+                    check[r] = True
+
+            # alle nicht False sind
+            if (True in check):
+                for c in range(len(check)):
+                    if (check[c] == True) and (candidates[c] != start)  and  (candidates[c] != end):
+                        if ((candidates[c][0] < start[0] or candidates[c][0] > end[0]) and (c == 2 or c == 3)):
+                            return candidates[c]
+                        return candidates[c]
+
+            axis+=1
+
+
+    def roadCreating(self,start,end,direction,depth):
+        global count
+
+        if end == start: return
+        elif self.nodeCheck(start,end) == True: return
+
+        d = direction
+        if (end[0] - start[0] <= 0) :
+            if (d == 0):        y_mid = floor(abs(end[0] - start[0])/2) + end[0]
+            elif(d == 1):       y_mid = ceil(abs(end[0] - start[0])/2) + end[0]
+        else:
+            if (d == 0):        y_mid = floor(abs(end[0] - start[0])/2) + start[0]
+            elif(d == 1):       y_mid = ceil(abs(end[0] - start[0])/2) + start[0]
+
+
+        if (end[1] - start[1] <= 0) :
+            if (d == 0):        x_mid = floor(abs(end[1] - start[1])/2) + end[1]
+            elif(d == 1):       x_mid = ceil(abs(end[1] - start[1])/2) + end[1]
+        else:
+            if (d == 0):        x_mid = floor(abs(end[1] - start[1])/2) + start[1]
+            elif(d == 1):       x_mid = ceil(abs(end[1] - start[1])/2) + start[1]
+
+
+        mid = (y_mid,x_mid)
+
+        depth += 1
+        if (mid not in self.field):
+
+            mid = self.nearestPoint((y_mid,x_mid),start,end)
 
 
 
-    def showMap(self):
-        for row in self.map:
-            print (row)
-        print(self.costList)
 
-if __name__ == '__main__':
-
-    test = Dungeon(20,20,50)
-    #test.multiRoom(2,5,5,1)
-    test.roomInitializing(1,3,4,5,3,2)
-    test.roomInitializing(9,14,6,4,1,2)
-    test.roomInitializing(12,9,6,2,2,2)
-    #test.fillBorder()
+        self.roadCreating(start,mid,0,depth)
+        self.roadCreating(mid,end,1,depth)
+        self.road.append(mid)
 
 
-    test2 = Road(test.returnArray())
-    test2.pfad_breitensuche((5,4),(11, 9))
-    #test2.pfad_breitensuche((18,9),(11, 18))
-    test2.pfad_breitensuche((18,9),(8, 14))
-    test2.fillRoad(test.returnArray())
-    print(test.returnArray())
+        return mid
 
-    #print(test2.costList)
-    #print(test2.graph)
-    #print(test2.pfad_breitensuche())
-    #test2.fillRoad(test.returnArray())
+    def nodeCheck(self,root,next):
 
-    arr = test.returnArray()
-    plt.imshow(arr,interpolation='nearest',cmap=plt.cm.gray)
-    plt.show()
-    #print(test2.fillRoad(test.returnArray()))
+        list = []
+
+        for y in range(root[0]-1, root[0]+2):
+            for x in range(root[1]-1, root[1]+2):
+                list.append((y,x))
+
+
+        if (next in list):
+
+            return True
+
+        return False
+
+
+    def fillRoad(self,start,end):
+        for r in self.map:
+            for node in self.road:
+                self.map[node[0]][node[1]] = 2.5
+        self.map[start[0]][start[1]] = 9
+        self.map[end[0]][end[1]] = 6
+
+
+
+
+
+
 

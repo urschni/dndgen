@@ -6,6 +6,7 @@ from monster_encounters_gen import *
 from response_gen import *
 from random import randint
 from PIL import Image
+from PIL import ImageDraw
 import numpy as np
 
 cgitb.enable()
@@ -61,11 +62,11 @@ else:
 		max_room_size = (7, 7)
 #Process room_density
 if room_density == 'low':
-	room_density = 0.5
+	room_density = [2,4]
 elif room_density == 'medium':
-	room_density = 1
+	room_density = [3,6]
 else:
-	room_density = 1.5
+	room_density = [4,8]
 #Process dungeon_lvl
 dungeon_lvl = int(dungeon_lvl)
 #Process party_size
@@ -103,11 +104,12 @@ img_res = (img_len,img_height)
 
 #Create Dungeon
 dungeon = Dungeon(dungeon_size[0], dungeon_size[1], 50)
-dungeon.multiRoom(5, 2)
+dungeon.multiRoom(room_density[0],room_density[1])
+dungeon.roadCreating()
 map = dungeon.returnArray()
 
 #Generate encounter
-number_of_encounter = np.amax(map) - 1
+number_of_encounter = room_density[1]+1
 encounter = ''
 if monster_allow or loot_allow:
     encounter = '<h2>Encounter</h2>\n'
@@ -122,12 +124,16 @@ if monster_allow or loot_allow:
 
 bw_map = np.zeros((dungeon_size[0], dungeon_size[1], 3), np.uint8)
 bw_map[map > 0] = [255, 255, 255]
-bw_map[map < -1] = [255, 255, 255]
-bw_map[map == 0] = [0, 0, 0]
-bw_map[map == -1] = [128, 128, 128]
+bw_map[map == 2.5] = [128, 128, 128]
+bw_map[map == 9] = [128, 0, 0]
+bw_map[map == 6] = [128, 0, 0]
 img = Image.fromarray(bw_map, mode='RGB')
-img = img.resize((500, 500))
-img = img.rotate(90)
+img = img.resize(img_res)
+img.save('./my.png')
+
+img = Image.open('./my.png')
+draw = ImageDraw.Draw(img)
+draw.text((250, 250),"hold the door",(255,255,255))
 img.save('./my.png')
 
 include_debug = True
