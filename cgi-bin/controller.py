@@ -122,6 +122,7 @@ if monster_allow or loot_allow:
             encounter += '<h4>Loot:</h4>\n'
             encounter += gen_loot(dungeon_lvl)
 
+# print Dungeon			
 bw_map = np.zeros((dungeon_size[0], dungeon_size[1], 3), np.uint8)
 bw_map[map > 0] = [255, 255, 255]
 bw_map[map == 2.5] = [128, 128, 128]
@@ -131,10 +132,29 @@ img = Image.fromarray(bw_map, mode='RGB')
 img = img.resize(img_res)
 img.save('./my.png')
 
-img = Image.open('./my.png')
+#Print GRID
 draw = ImageDraw.Draw(img)
-draw.text((250, 250),"hold the door",(255,255,255))
+y_start = 0
+y_end = img.height
+step_size = int(img.width / 40)
+
+for x in range(0, img.width, step_size):
+	line = ((x, y_start), (x, y_end))
+	draw.line(line, fill=0)
+
+x_start = 0
+x_end = img.width
+
+for y in range(0, img.height, step_size):
+	line = ((x_start, y), (x_end, y))
+	draw.line(line, fill=0)
+	
 img.save('./my.png')
+
+# Print RoomNumbers
+draw.text((250, 250),"1",fill = 128)
+img.save('./my.png')
+
 
 include_debug = True
 
