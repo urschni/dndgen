@@ -236,14 +236,14 @@ class Dungeon:
             elif(normal != 0):
                 n = Room(random,(floor((random[1][0] - random[0][0])/2.5 - 1),floor((random[1][1] - random[0][1])/2.5 - 1)),count,key,neighbor.get(key))
                 self.rooms.append(n)
-                n.mapImplement(self.dMap,5)
+                n.mapImplement(self.dMap,10)
                 normal -= 1
 
             # kleine Raum
             elif(small != 0):
                 s = Room(random,(1,1),count,key,neighbor.get(key))
                 self.rooms.append(s)
-                s.mapImplement(self.dMap,3)
+                s.mapImplement(self.dMap,10)
                 small -= 1
 
             try:
