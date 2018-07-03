@@ -8,15 +8,10 @@ import matplotlib.pyplot as plt
 """
 Dnd Generator version 0.060
 """
-class Room:
-    border ={}
-    neighbor = []
+class Room(object):
     roomID = 0
     fieldID = 0
     field = ((0,0),(0,0))
-    safety = 0
-    shape = [0,0]    #(height,width)
-    position = [0,0] #(y,x)
     randomField = ((0,0),(0,0))
 
     def __init__(self, field, safety, id ,fieldId,neighbor):
@@ -26,7 +21,11 @@ class Room:
         self.roomID = id
         self.safety = safety
         self.neighbor = neighbor
+        self.shape = [0,0]    #(height,width)
+        self.position = [0,0] #(y,x)
+        self.border ={}
         self.initializing()
+
 
     def initializing(self):
 
@@ -102,7 +101,9 @@ class Room:
         return temp
 
     def getShape(self):
+
         temp = self.shape
+        print(temp)
         return test
 
     def getNeighbor(self):
@@ -348,7 +349,6 @@ if __name__ == '__main__':
     test.multiRoom(5,6)
     for r in test.rooms:
         print(r)
-
 
     arr = test.returnArray()
     plt.imshow(arr, interpolation='nearest',cmap=plt.cm.gray)
