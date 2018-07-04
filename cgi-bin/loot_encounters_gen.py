@@ -214,6 +214,8 @@ def get_random_loot_object(item_db, budget, category=None):
     else:
         if not isinstance(category, list):
             types = [category]
+        else:
+            types = category
         category_sql = "("
         for act_category in types:
             category_sql += "\'" + act_category + "\',"

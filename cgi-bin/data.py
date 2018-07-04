@@ -16,8 +16,9 @@ def openDB():
 
     monsterdb = sqlite3.connect(path + '../data/monsters.db')
     itemdb = sqlite3.connect(path + '../data/items.db')
-    
-    return monsterdb, itemdb
+    trapdb = sqlite3.connect(path + '../data/traps.db')
+
+    return monsterdb, itemdb, trapdb
     
 
 #get cursor of an already opened databse

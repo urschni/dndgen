@@ -1,10 +1,11 @@
-import cgi, cgitb
+import cgi
+import cgitb
 import time
 from DnD import *
 from loot_encounters_gen import *
 from monster_encounters_gen import *
+from traps_gen import *
 from response_gen import *
-from random import randint
 from PIL import Image
 from PIL import ImageDraw
 import numpy as np
@@ -43,31 +44,31 @@ yes_no_to_bool = {'yes': True, 'no': False, None: None}
 #Process dungeon_size
 dungeon_size_box = yes_no_to_bool[dungeon_size_box]
 if dungeon_size_box:
-	if (dungeon_height and dungeon_length) != None:
-		height = int(dungeon_height)
-		length = int(dungeon_length)
-		dungeon_size = (length,height)
-		max_room_size = (int(length/4),int(height/4))
-	else:
-		dungeon_size = (20, 20)
-		max_room_size = (5, 5)
+    if (dungeon_height and dungeon_length) != None:
+        height = int(dungeon_height)
+        length = int(dungeon_length)
+        dungeon_size = (length, height)
+        max_room_size = (int(length / 4), int(height / 4))
+    else:
+        dungeon_size = (20, 20)
+        max_room_size = (5, 5)
 else:
-	if 'small' == dungeon_size:
-		dungeon_size = (10, 10)
-		max_room_size = (3, 3)
-	elif 'medium' == dungeon_size:
-		dungeon_size = (20, 20)
-		max_room_size = (5, 5)
-	else:
-		dungeon_size = (30, 30)
-		max_room_size = (7, 7)
+    if 'small' == dungeon_size:
+        dungeon_size = (10, 10)
+        max_room_size = (3, 3)
+    elif 'medium' == dungeon_size:
+        dungeon_size = (20, 20)
+        max_room_size = (5, 5)
+    else:
+        dungeon_size = (30, 30)
+        max_room_size = (7, 7)
 #Process room_density
 if room_density == 'low':
-	room_density = [2,4]
+    room_density = [2, 4]
 elif room_density == 'medium':
-	room_density = [3,6]
+    room_density = [3, 6]
 else:
-	room_density = [4,8]
+    room_density = [4, 8]
 #Process dungeon_lvl
 dungeon_lvl = int(dungeon_lvl)
 #Process party_size
@@ -80,39 +81,39 @@ monster_allow = yes_no_to_bool[monster_allow]
 trap_allow = yes_no_to_bool[trap_allow]
 #Process trap_freq
 if trap_freq == 'low':
-    trap_freq = 0.1
+    trap_freq = 0.2
 elif trap_freq == 'medium':
-    trap_freq = 0.3
+    trap_freq = 0.4
 else:
-    trap_freq = 0.5
-#Process deadend_allow
+    trap_freq = 0.6
+#Process dead end_allow
 deadend_allow = yes_no_to_bool[deadend_allow]
 #Process loot_allow
 loot_allow = yes_no_to_bool[loot_allow]
 #Process img_res
 if img_res == 'low':
-	img_len = 250
+    img_len = 250
 elif img_res == 'medium':
-	img_len = 500
+    img_len = 500
 elif img_res == 'high':
-	img_len = 1000
+    img_len = 1000
 elif img_res == 'very_high':
-	img_len = 2000
+    img_len = 2000
 else:
-	img_len = 4000
-img_height = int(img_len/dungeon_size[0])*dungeon_size[1]
-img_res = (img_len,img_height)
+    img_len = 4000
+img_height = int(img_len / dungeon_size[0]) * dungeon_size[1]
+img_res = (img_len, img_height)
 
 #Create Dungeon
 dungeon = Dungeon(dungeon_size[0], dungeon_size[1], 50)
-dungeon.multiRoom(room_density[0],room_density[1])
+dungeon.multiRoom(room_density[0], room_density[1])
 #dungeon.roadCreating()
 map = dungeon.returnArray()
 
 #Generate encounter
-number_of_encounter = room_density[1]+1
+number_of_encounter = room_density[1] + 1
 encounter = ''
-if monster_allow or loot_allow:
+if monster_allow or loot_allow or trap_allow:
     encounter = '<h2>Encounter</h2>\n'
     for room_number in range(1, number_of_encounter):
         encounter += '<h3>Room ' + str(room_number) + '</h3>\n'
@@ -122,11 +123,16 @@ if monster_allow or loot_allow:
         if loot_allow:
             encounter += '<h4>Loot:</h4>\n'
             encounter += gen_loot(dungeon_lvl)
+        if trap_allow:
+                traps = gen_traps(dungeon_lvl, trap_freq, chance_to_get_multiple_traps=trap_freq/2)
+                if traps is not None:
+                    encounter += '<h4>Traps:</h4>\n'
+                    encounter += traps
 
 # print Dungeon
 img_name = str(uuid.uuid4().hex)
 img_path = "./tmp_dungeon_img/" + img_name + ".png"
-		
+
 bw_map = np.zeros((dungeon_size[0], dungeon_size[1], 3), np.uint8)
 bw_map[map > 0] = [255, 255, 255]
 bw_map[map == 2.5] = [128, 128, 128]
@@ -143,27 +149,24 @@ y_end = img.height
 step_size = int(img.width / 40)
 
 for x in range(0, img.width, step_size):
-	line = ((x, y_start), (x, y_end))
-	draw.line(line, fill=0)
+    line = ((x, y_start), (x, y_end))
+    draw.line(line, fill=0)
 
 x_start = 0
 x_end = img.width
 
 for y in range(0, img.height, step_size):
-	line = ((x_start, y), (x_end, y))
-	draw.line(line, fill=0)
-	
+    line = ((x_start, y), (x_end, y))
+    draw.line(line, fill=0)
 
 #img.save('./my.png')
 
 # Print RoomNumbers
-draw.text((250, 250),"1",fill = 128)
+draw.text((250, 250), "1", fill=128)
 img.save(img_path)
-
 
 include_debug = True
 
-
 #Send attributes to the HTML page- printer
 
-printResponse(include_debug, dungeon_name, all_attributes, encounter,img_name) 
+printResponse(include_debug, dungeon_name, all_attributes, encounter, img_name)
