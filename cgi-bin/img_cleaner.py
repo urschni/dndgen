@@ -3,7 +3,7 @@ import time
 
 
 def clean():
-    path = os.getcwd() + "\\tmp_dungeon_img"
+    path = os.getcwd() + "\\saved_dungeons"
     now = time.time()
 
     for f in os.listdir(path):

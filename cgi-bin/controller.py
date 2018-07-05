@@ -6,6 +6,7 @@ from loot_encounters_gen import *
 from monster_encounters_gen import *
 from traps_gen import *
 from response_gen import *
+from create_response_html import *
 from PIL import Image
 from PIL import ImageDraw
 import numpy as np
@@ -129,10 +130,10 @@ if monster_allow or loot_allow or trap_allow:
                     encounter += '<h4>Traps:</h4>\n'
                     encounter += traps
 
-# print Dungeon
+#create unique name
 img_name = str(uuid.uuid4().hex)
-img_path = "./tmp_dungeon_img/" + img_name + ".png"
-
+img_path = "./saved_dungeons/" + img_name + ".png"
+# print Dungeon
 bw_map = np.zeros((dungeon_size[0], dungeon_size[1], 3), np.uint8)
 bw_map[map > 0] = [255, 255, 255]
 bw_map[map == 2.5] = [128, 128, 128]
@@ -140,7 +141,6 @@ bw_map[map == 9] = [128, 0, 0]
 bw_map[map == 6] = [128, 0, 0]
 img = Image.fromarray(bw_map, mode='RGB')
 img = img.resize(img_res)
-#img.save('./my.png')
 
 #Print GRID
 draw = ImageDraw.Draw(img)
@@ -159,14 +159,14 @@ for y in range(0, img.height, step_size):
     line = ((x_start, y), (x_end, y))
     draw.line(line, fill=0)
 
-#img.save('./my.png')
 
 # Print RoomNumbers
 draw.text((250, 250), "1", fill=128)
+
 img.save(img_path)
 
 include_debug = True
 
 #Send attributes to the HTML page- printer
 
-printResponse(include_debug, dungeon_name, all_attributes, encounter, img_name)
+createResponse(include_debug, dungeon_name, all_attributes, encounter, img_name)
