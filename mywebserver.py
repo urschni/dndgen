@@ -2,9 +2,10 @@ from http.server import HTTPServer, CGIHTTPRequestHandler
 from threading import Thread
 import cgitb
 import sys
-from img_cleaner import *
-
 sys.path.insert(0, './cgi-bin')
+import img_cleaner
+
+
 
 cgitb.enable()  ## This line enables CGI error reporting
 
@@ -16,7 +17,7 @@ print("server started")
 try:
     cleaner_thread.start()
 except (KeyboardInterrupt, SystemExit):
-    cleanup_stop_thread()
+    cleaner_thread._Thread__stop()
     sys.exit
 
 httpd = server(server_address, handler)
