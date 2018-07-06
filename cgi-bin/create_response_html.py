@@ -32,6 +32,8 @@ def createResponse(debug, name, attributes, encounters,img_name):
         file.write("<h2>Values:</h2>")
         file.write(attributes)
     file.write("<br><img src=\"../saved_dungeons/"+img_name+".png\" alt=\"Dungeon Map\" style=\"width:500px\"><br>")
+    file.write("<a href=\"../saved_dungeons/"+img_name+".pdf\" download=\"Dungeon\"><button type=\"button\">Download as Pdf</button></a> &nbsp;")
+    file.write("<a href=\"../saved_dungeons/"+img_name+".png\" download=\"Dungeon\"><button type=\"button\">Download Dungeon Image</button></a><br>")
     file.write(encounters)
     file.write("</div>")
     file.write("<div class=\"gitlink\"><br><a href=\"https://github.com/urschni/dndgen\"><img src=\"../graphics/GithubLogo.png\" alt=\"Github Link\" style=\"width:150px\"></a></div>")
