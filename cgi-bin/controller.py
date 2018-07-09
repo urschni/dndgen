@@ -112,12 +112,12 @@ dungeon.roadCreating()
 map = dungeon.returnArray()
 
 #Generate encounter
-number_of_encounter = room_density[1] + 1
+number_of_encounter = len(dungeon.rooms)
 encounter = ''
 if monster_allow or loot_allow or trap_allow:
     encounter = '<h2>Encounter</h2>\n'
     for room_number in range(1, number_of_encounter):
-        encounter += '<h3>Room ' + str(room_number) + '</h3>\n'
+        encounter += '<h3 id=\"room' + str(room_number) +'\">Room ' + str(room_number) + '</h3>\n'
         if monster_allow:
             encounter += '<h4>Monster:</h4>\n'
             encounter += gen_monster_encounter(dungeon_lvl) + '\n'
