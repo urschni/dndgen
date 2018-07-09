@@ -138,7 +138,9 @@ class Room(object):
         if len(self.roads) <= len(self.neighbor):
             self.roads.append(road)
         return 0
-
+    
+    def getCorner(self):
+        return [(self.top,self.left),(self.bottom, self.right)]
 
 
 
@@ -422,7 +424,19 @@ class Dungeon(object):
     # Dungeon zurückgeben
     def returnArray(self):
         return self.dMap
+    
+    def getCorner(self):
+        self.corner = {}
 
+        for room in self.rooms:
+            id = room.getID()
+            corner = room.getCorner()
+
+            self.corner.setdefault(id,[]).extend(corner)
+
+        return self.corner
+    
+    
     def printRoad(self):
         for road in self.roads:
             print(road.getRoad())
