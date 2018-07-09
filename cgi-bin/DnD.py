@@ -453,9 +453,13 @@ class Dungeon(object):
     
     def printRoad(self):
         for road in self.roads:
-            print(road.getRoad())
-            for node in road.getRoad():
-                self.dMap[node[0]][node[1]] = 3
+            max = len(road)
+            for n in range(max):
+                if ((n > 0) and (n < max - 1)):
+                    self.dMap[road[n][0]][road[n][1]] = 3
+                else:
+                    self.dMap[road[n][0]][road[n][1]] = 6
+
         return self.dMap
 
     def randomRoad(self):
