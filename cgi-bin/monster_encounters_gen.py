@@ -4,6 +4,7 @@ from bisect import bisect
 import os
 import sqlite3
 from numpy import random as nprandom
+
 '''
 Table Experience Point Awards
 1.8 equal to 1/8, 1.6 to 1/6, 1.4 to 1/4, 1.3 to 1/3 and 1.2 to 1/2
@@ -54,8 +55,6 @@ cr_to_xp = {
     30: [9830400, 3280000, 2457600, 1638400]
 }
 
-
-
 '''
 Possible arguments:
 group_size - Number of groupmembers
@@ -65,16 +64,17 @@ OR
 cr - Challenge rating of the encounter
 '''
 
+
 def gen_monster_encounter(*args):
     if len(args) == 3:
         group_size = args[0]
         group_lvl = args[1]
         difficulty = args[2]
-        if (isinstance(group_size, str)):
-            if (group_size.isDigit()):
+        if isinstance(group_size, str):
+            if group_size.isDigit():
                 group_size = int(group_size)
-        if (isinstance(group_lvl, str)):
-            if (group_lvl.isDigit()):
+        if isinstance(group_lvl, str):
+            if group_lvl.isDigit():
                 group_lvl = int(group_lvl)
         assert isinstance(group_size, int)
         assert isinstance(group_lvl, int)
@@ -91,11 +91,11 @@ def gen_monster_encounter(*args):
         print("Wrong number of arguments! Either 1 for only CR or 3 for group_size, group_lvl and difficulty")
         return None
 
-    #Randomly decide if this encounter is easy, average, challenging, hard or epic
+    # Randomly decide if this encounter is easy, average, challenging, hard or epic
     encounter_design = int(nprandom.choice([-1, 0, 1, 2, 3], p=[0.28, 0.55, 0.10, 0.05, 0.02]))
     cr = get_next_cr(cr, encounter_design)
 
-    #open the monster database
+    # open the monster database
     monsterDB = openDB()[0]
 
     xp_available = cr_to_xp[cr][0]
@@ -103,48 +103,60 @@ def gen_monster_encounter(*args):
     max_number_of_monsters = 5
     actual_number_of_monsters = randint(min_number_of_monsters, max_number_of_monsters)
 
+    # encounter contains tuples as elements with the structure (amount, name of monster, xp)
     encounter = []
     monsters = cr_splits(cr, actual_number_of_monsters)
-    #print('what it should be:', actual_number_of_monsters, '; what it is', sum([m[0] for m in monsters]))
+    # rint('what it should be:', actual_number_of_monsters, '; what it is', sum([m[0] for m in monsters]))
     for monster in monsters:
-        #print(monster)
+        # print(monster)
         number_of_monsters = monster[0]
         if number_of_monsters == 1:
             encounter.append((1, getOneRandomMonster(monsterDB, monster[1], None)))
         else:
-            #Decide if all Monster with the same CR are of the same type
-            #All the same
-            if randint(1,3) == 1:
+            # Decide if all Monster with the same CR are of the same type
+            # All the same
+            if randint(1, 3) == 1:
                 encounter.append((number_of_monsters, getOneRandomMonster(monsterDB, monster[1], None)))
             else:
                 number_of_next_monster = randint(1, number_of_monsters - 1)
                 number_of_monsters = number_of_monsters - number_of_next_monster
                 encounter.append((number_of_next_monster, getOneRandomMonster(monsterDB, monster[1], None)))
                 while number_of_monsters > 0:
-                    #print("number_of_monsters", number_of_monsters)
+                    # print("number_of_monsters", number_of_monsters)
                     number_of_next_monster = randint(1, number_of_monsters)
                     number_of_monsters -= number_of_next_monster
                     encounter.append((number_of_next_monster, getOneRandomMonster(monsterDB, monster[1], None)))
-    #print(encounter)
+    # print(encounter)
     closeDB(monsterDB)
+
+    # Add same monsters together:
+    # Keys are the monster types, values are the amount of this monster type
+    encounter_set = {}
+    for monster in encounter:
+        monster = list(monster)
+        amount, monster_type = monster
+        if monster_type in encounter_set.keys():
+            encounter_set[monster_type] += amount
+        else:
+            encounter_set[monster_type] = amount
+    encounter = [(encounter_set[mons], mons) for mons in encounter_set.keys()]
+
     return print_encounter(encounter)
 
 
-
-#Formatting for only one monster of an encounter
+# Formatting for only one monster of an encounter
 def print_monster(monster):
-    #print(monster)
+    # print(monster)
     number = monster[0]
     monster = monster[1]
     name = str(monster[monster_columns.index('name')])
-    #cr = str(monster[monster_columns.index('cr')])
+    # cr = str(monster[monster_columns.index('cr')])
     url = str(monster[monster_columns.index('url')])
     xp = str(number * int(''.join(c for c in monster[monster_columns.index('xp')] if c.isdigit())))
     return str(number) + 'x <a href=\"' + url + '\" target=\"_blank\">' + name + '</a>, ' + xp
 
 
-
-#Formatting for an entire encounter
+# Formatting for an entire encounter
 def print_encounter(encounter):
     return '<br>\n'.join([print_monster(m) for m in encounter])
 
@@ -152,25 +164,27 @@ def print_encounter(encounter):
 '''
 Function to get a random monster based on cr and type from the monster database
 '''
-#These are the columns returned by the function getOneRandomMonster
-monster_columns = ['name', 'cr', 'url', 'xp']    
-def getOneRandomMonster(monsterDB, cr, types):
+# These are the columns returned by the function getOneRandomMonster
+monster_columns = ['name', 'cr', 'url', 'xp']
+
+
+def getOneRandomMonster(monster_db, cr, types):
     monster_columns_sql = ', '.join(monster_columns)
     assert cr in cr_table
     if isinstance(cr, float):
         cr = str(cr).replace('.', '/')
-    cursor = get_Cursor(monsterDB)
-    #print('CR:\t', cr)
+    cursor = get_Cursor(monster_db)
+    # print('CR:\t', cr)
     if types is None:
         cursor.execute('SELECT ' + monster_columns_sql + ' FROM monsters WHERE cr = \'' + str(cr) + '\' ORDER BY random() LIMIT 1;')
-        monsterDB.commit()
-        randomMonster = cursor.fetchone()
-        #print('cr', cr, ';randomMonster', randomMonster)
-        if randomMonster[monster_columns.index('xp')] is None:
-            randomMonster = list(randomMonster)
-            randomMonster[monster_columns.index('xp')] = '0'
-            return tuple(randomMonster)
-        return randomMonster
+        monster_db.commit()
+        random_monster = cursor.fetchone()
+        # print('cr', cr, ';random_monster', random_monster)
+        if random_monster[monster_columns.index('xp')] is None:
+            random_monster = list(random_monster)
+            random_monster[monster_columns.index('xp')] = '0'
+            return tuple(random_monster)
+        return random_monster
     else:
         if not isinstance(types, list):
             types = [types]
@@ -179,27 +193,29 @@ def getOneRandomMonster(monsterDB, cr, types):
             type_sql += "\'" + act_type + "\',"
         type_sql = type_sql[:-1] + ")"
         cursor.execute('SELECT ' + monster_columns_sql + ' FROM monsters WHERE creature_type in ' + type_sql + ' LIMIT 1;')
-        randomMonster = cursor.fetchone()
-        if isinstance(randomMonster, list):
-            return randomMonster[0]
+        random_monster = cursor.fetchone()
+        if isinstance(random_monster, list):
+            return random_monster[0]
         else:
-            return randomMonster
-            
-            
+            return random_monster
+
+
 '''
 Function to get smaller or bigger CR
 cr is the actual CR and "change_by" gives the number of steps to make cr bigger (positive number) or smaller (negative number)
 '''
+
+
 def get_next_cr(cr, change_by):
     assert (isinstance(change_by, int))
     assert (isinstance(cr, (int, float)))
     assert cr in cr_table
     temp_cr = cr_table.index(cr) + change_by
-    if (temp_cr < 0):
-        #print("CR is lower than 1/8")
+    if temp_cr < 0:
+        # print("CR is lower than 1/8")
         return 1.8
-    elif (temp_cr > 34):
-        #print("CR is bigger than 30, ")
+    elif temp_cr > 34:
+        # print("CR is bigger than 30, ")
         return 30
     return cr_table[temp_cr]
 
@@ -207,10 +223,12 @@ def get_next_cr(cr, change_by):
 '''
 Splits the CR to the given number of monster
 '''
+
+
 def cr_splits(cr, number_of_monsters):
     assert cr in cr_table
     assert isinstance(number_of_monsters, int)
-    assert number_of_monsters <= 16 and number_of_monsters > 0
+    assert 0 < number_of_monsters <= 16
     # Table High CR Equivalencies
     number_of_creatures = [2, 3, 4, 6, 8, 12, 16]
     splits = [[(1, cr)]]
@@ -219,13 +237,13 @@ def cr_splits(cr, number_of_monsters):
             splits.append([(number_of_creatures[a - 2], get_next_cr(cr, -a))])
         else:
             break
-    for a in range(0,len(splits) - 1):
+    for a in range(0, len(splits) - 1):
         enc = splits[a]
         if enc[0][0] > 1 and get_next_cr(enc[0][1], -2) is not None:
             splits.append([enc[0], (2, get_next_cr(enc[0][1], - 2))])
     # rand_index = random.randint(0,len(splits) - 1)
     if number_of_monsters == 1:
-        #print('It is only one monster!')
+        # print('It is only one monster!')
         return [(1, cr)]
     elif number_of_monsters in number_of_creatures:
         next_cr = get_next_cr(cr, - number_of_creatures.index(number_of_monsters) - 2)
@@ -239,19 +257,23 @@ def cr_splits(cr, number_of_monsters):
         cr_fitting = get_next_cr(cr, -(number_of_creatures.index(monster_fitting) + 2))
         if cr_fitting is None:
             return None
-        elif(number_of_monsters - monster_fitting) == 1:
+        elif (number_of_monsters - monster_fitting) == 1:
             rest_monster = cr_splits(cr_fitting, number_of_monsters - monster_fitting + 1)
             if rest_monster is not None:
                 return [(monster_fitting - 1, cr_fitting)] + rest_monster
             else:
-                print("Number of monsters (", number_of_monsters - monster_fitting + 1 ,") with CR=", cr_fitting, " can't be fit to given CR!", sep='')
+                print("Number of monsters (", number_of_monsters - monster_fitting + 1, ") with CR=", cr_fitting, " can't be fit to given CR!", sep='')
                 return [(monster_fitting - 1, cr_fitting)]
         else:
             rest_monster = cr_splits(cr_fitting, number_of_monsters - monster_fitting)
-            #print("rest_monster,",rest_monster)
+            # print("rest_monster,",rest_monster)
             if rest_monster is not None:
                 return [(monster_fitting, cr_fitting)] + rest_monster
             else:
                 print("Number of monsters can't be fit to given CR!")
                 return [(monster_fitting, cr_fitting)]
     return splits
+
+if __name__ == '__main__':
+    for a in range(1, 5):
+        print(gen_monster_encounter(1))
