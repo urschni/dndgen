@@ -1,3 +1,4 @@
+
 __author__ = 'tunghoang'
 from random import randint, choice
 from Road import *
@@ -6,15 +7,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 """
-Dnd Generator version 0.060
+Dnd Generator version 0.070
 """
 class Room(object):
-    roomID = 0
-    fieldID = 0
-    field = ((0,0),(0,0))
-    randomField = ((0,0),(0,0))
 
-    def __init__(self, field, safety, id ,fieldId,neighbor):
+    def __init__(self, field, safety, id ,fieldId, neighbor, nDirection):
+        self.roads = []
+        self.nDirection = nDirection
         self.roomID = id
         self.fieldID = fieldId
         self.field = field
@@ -24,22 +23,20 @@ class Room(object):
         self.shape = [0,0]    #(height,width)
         self.position = [0,0] #(y,x)
         self.border ={}
+        self.coordinates = []
+        self.doors = {}
         self.initializing()
 
 
-    def initializing(self):
-
-        """
-        :param field:       wird basis wie so definiert: ((y_min,x_min),(y_max,x_max)) also die diagonale Kante vom zufälligen Feld
-        :param safety:      um den Fall zu vermeiden, dass 2 Räume nebeneinander erzeugt werden, dann wird der sichere Abstand  eingefügt
-        :param color:       die Farbe von Raüme kontrollieren
-        :return:
-        """
+    def cornerSetup(self):
+        self.top =      self.position[0] - int(self.shape[0]/2)
+        self.bottom =    self.position[0] + (self.shape[0] - int(self.shape[0]/2))
+        self.left =      self.position[1] - int(self.shape[1]/2)
+        self.right =     self.position[1] + (self.shape[1] - int(self.shape[1]/2))
 
 
-        self.randomField = [(self.field[0][0] +  self.safety[0],self.field[0][1] +  self.safety[1]),(self.field[1][0] - (1 +  self.safety[0]),self.field[1][1] - (1 +  self.safety[1]))]
-        self.position[0], self.position[1] = randint(self.randomField[0][0],self.randomField[1][0]) , randint(self.randomField[0][1],self.randomField[1][1])
 
+    def shapeSetup(self):
         # Falls das zufällige Feld zu klein ist, passen sich die Breite und die Höhe von Räume an
         if ( self.safety[0] != 0 and  self.safety[1] != 0):
             if (self.field[1][0]%2 == 0):     self.shape[0] = randint( self.safety[0], self.safety[0]* 2)
@@ -49,6 +46,9 @@ class Room(object):
         else:
             self.shape[0] ,self.shape[1]  = randint(1,2), randint(1,2)
 
+
+
+    def positionAdjustment(self):
         # Falls 1 oder 2 Richtung von Räume neben der Grenze von der Karte
         if (self.position[0] -  int(self.shape[0]/2) <= self.field[0][0]):                      self.position[0] += 1
         if ((self.position[0] + (self.shape[0] - int(self.shape[0]/2))) >= self.field[1][0]):   self.position[0] -= 1
@@ -56,8 +56,29 @@ class Room(object):
         if ((self.position[1] + (self.shape[1] - int(self.shape[1]/2))) >= self.field[1][1]):   self.position[1] -= 1
 
 
+
+    def initializing(self):
+        """
+        :param field:       wird basis wie so definiert: ((y_min,x_min),(y_max,x_max)) also die diagonale Kante vom zufälligen Feld
+        :param safety:      um den Fall zu vermeiden, dass 2 Räume nebeneinander erzeugt werden, dann wird der sichere Abstand  eingefügt
+        :param color:       die Farbe von Raüme kontrollieren
+        :return:
+        """
+        self.randomField = [(self.field[0][0] +  self.safety[0],self.field[0][1] +  self.safety[1]),(self.field[1][0] - (1 +  self.safety[0]),self.field[1][1] - (1 +  self.safety[1]))]
+        self.position[0], self.position[1] = randint(self.randomField[0][0],self.randomField[1][0]) , randint(self.randomField[0][1],self.randomField[1][1])
+
+        self.shapeSetup()
+        self.positionAdjustment()
+        self.cornerSetup()
+
+        for y_axis in range(self.top,self.bottom):
+            for x_axis in range(self.left,self.right):
+                self.coordinates.append((y_axis,x_axis))
+
         # Raum erstellen
         #self.dMap[y_pos - int(h/2):y_pos + (h - int(h/2)),x_pos - int(w/2):x_pos + (w - int(w/2))] = 7
+
+
 
     def mapImplement(self,map,value):
 
@@ -69,190 +90,218 @@ class Room(object):
 
     def borderCalculating(self,map):
 
-        top =       self.position[0] - int(self.shape[0]/2)
-        bottom =    self.position[0] + (self.shape[0] - int(self.shape[0]/2))
-        left =      self.position[1] - int(self.shape[1]/2)
-        right =     self.position[1] + (self.shape[1] - int(self.shape[1]/2))
+        for x_axis in range(self.left, self.right):
+            if ((self.top - 1) >= 0 ):
+                self.border.setdefault( (0,-1), []).append((self.top - 1, x_axis))   #top
 
-        for x_axis in range(left,right):
+            if ((self.bottom + 1) <= np.shape(map)[0] ):
+                self.border.setdefault((0,1), []).append((self.bottom, x_axis))      #bottom
 
-            if ((top - 1) >= 0 ):
-                self.border.setdefault('top', []).append((top - 1, x_axis))
+        for y_axis in range(self.top,self.bottom):
+            if ((self.left - 1) >= 0):
+                self.border.setdefault( (1,-1), []).append((y_axis, self.left -1))   #left
+            if ((self.right + 1) <= np.shape(map)[1]):
+                self.border.setdefault((1,1), []).append((y_axis, self.right))       #right
 
-            if ((bottom + 1) <= np.shape(map)[0] ):
-                 self.border.setdefault('bottom', []).append((bottom, x_axis))
+        for i in self.border.keys():
+            self.doors.setdefault(i,[]).append(choice(self.border.get(i)))
 
-        for y_axis in range(top,bottom):
-            #print("x_axis = {} top = {} | bottom = {} ".format(y_axis,top,bottom))
-            if ((left - 1) >= 0):
-                self.border.setdefault('left', []).append((y_axis, left -1))
-            if ((right + 1) <= np.shape(map)[1]):
-                 self.border.setdefault('right', []).append((y_axis, right))
+
+    def fillBorder(self,map):
+        for i in self.border.keys():
+            for coordinate in self.border.get(i):
+                map[coordinate[0]][coordinate[1]] += 3
+
 
     def __repr__(self):
         return ('id: {}, position: {}, shape: {}, fieldID: {}, nearby: {} '.format(self.roomID,self.position,self.shape,self.fieldID,self.neighbor))
 
+    def getDoors(self):
+        return self.doors
+
     def getID(self):
-        temp = self.roomID
-        return temp
+        return self.roomID
 
-    def getPosition(self):
-        temp = self.position
-        return temp
-
-    def getShape(self):
-
-        temp = self.shape
-        print(temp)
-        return test
-
-    def getNeighbor(self):
-        temp = self.neighbor
-        return temp
+    def getNeightbor(self):
+        return self.neighbor
 
     def getBorder(self,direction):
-        if ((direction == 'top') or (direction == 'top') or (direction == 'top') or (direction == 'top')):
+        if (direction == True): return self.border
+        if ((direction == 2) or (direction == -2) or (direction == 1) or (direction == -1)):
             temp = self.border.get(direction)
             return temp
         else:
             print ("Error!!!")
             return 0
 
-class Dungeon:
-    dMap =[]
-    compare = []
-    percentage = 50
-    widthOfMap = 0
-    heightOfMap = 0
-    roads =[]
-    rooms = []
-    max = 0
+    def addRoad(self, road):
+        if len(self.roads) <= len(self.neighbor):
+            self.roads.append(road)
+        return 0
+
+
+
+
+class Dungeon(object):
+
+
 
     # Initialisierung vom Dungeon
-    def __init__(self,width,height,percentage):
-
-        self.compare = [width,height]
-        if (min(self.compare) >= floor(max(self.compare)/3)):
-            self.widthOfMap = width
-            self.heightOfMap = height
+    def __init__(self,width,height):
+        self.dMap =[]
+        self.roads =[]
+        self.rooms = []
+        self.shape = [height,width]
+        if (min(self.shape) >= floor(max(self.shape)/3)):
+            self.shape[0] = height
+            self.shape[1] = width
             self.max = floor((width/3) *(height/3))
         else:
             print("Error!!!")
             return
 
-        self.percentage = int (percentage/10)
-        temp = np.zeros((self.heightOfMap,self.widthOfMap), dtype=np.int)
-        self.dMap = temp
+        self.dMap = np.zeros((self.shape[0],self.shape[1]), dtype=np.int)
 
 
     # mehrere Räume erstellen
     def multiRoom(self,interval,numberOfRoom):
 
-        """
-        :param interval         um die beste Weise von der Partition zu kontrollieren:
-        :param numberOfRoom     die Anzahl von Räume:
-        :return:
-        """
         if (numberOfRoom > self.max):
-            numberOfRoom = self.roomDescrement(numberOfRoom)
+            numberOfRoom = self.max
 
-        partition = self.roomPartition(self.factors(numberOfRoom),interval)
-        print(partition)
+        self.partition = self.roomPartition(self.factors(numberOfRoom),interval)
         count = numberOfRoom
 
         # die Faktoren werden von jeder Koordinate (x oder y) zufällig ausgewählt
         try:
-            if (min(self.compare) == max(self.compare)):
-                y_patition = choice(partition)
-                partition.remove(y_patition)
-                x_patition = choice(partition)
+            if (self.shape[0] == self.shape[1]):
+                y_patition = choice(self.partition)
+                self.partition.remove(y_patition)
+                x_patition = self.partition[0]
+
+            elif (self.shape.index(max(self.shape)) == 0):
+                y_patition, x_patition = max(self.partition), min(self.partition)
+
             else:
-                if (max(self.compare) == self.heightOfMap):
-                    y_patition, x_patition = max(partition), min(partition)
-                else:
-                    y_patition, x_patition = min(partition), max(partition)
+                y_patition, x_patition = min(self.partition), max(self.partition)
 
         except Exception as e:
             print("not acceptable!!!")
             return 0
 
 
-        # die Karte wird kleiner geteilt
-        y_axis = np.arange(0,self.heightOfMap + 1,int(self.heightOfMap / y_patition))
-        x_axis = np.arange(0,self.widthOfMap + 1,int(self.widthOfMap / x_patition))
-
-        # den Mangel ergänzen
-        if (max(y_axis) != self.heightOfMap ):    y_axis[len(y_axis) -1 ] = self.heightOfMap
-        if (max(x_axis) != self.widthOfMap ):    x_axis[len(x_axis) -1 ] = self.widthOfMap
-
-        # die Liste von den zufälligen Feldern
-        randomZone = {}
-        neighbor  = {}
-        i = 0
-        mapping = np.zeros((len(y_axis)-1,len(x_axis) - 1), dtype = np.int)
-
-        for row in range(1,len(y_axis)):
-            for column in range(1,len(x_axis)):
-
-                i += 1
-                mapping[row-1][column-1] = i
-                randomZone.setdefault(i ,((y_axis[row - 1] ,x_axis[column - 1]),((y_axis[row]  ,x_axis[column] ))))
-
-
-        for r in range(len(y_axis)-1):
-            for c in range(len(x_axis)-1):
-                try:
-                    if (r - 1  >= 0):   neighbor.setdefault(mapping[r][c],[]).append(mapping[r -1][c])          #top
-                    if (c - 1 >= 0):    neighbor.setdefault(mapping[r][c],[]).append(mapping[r    ][c - 1])     #left
-                    if (c-1 >= 0) : neighbor.setdefault(mapping[r][c],[]).append(mapping[r + 1][c])             #bottom
-                    neighbor.setdefault(mapping[r][c],[]).append(mapping[r    ][c + 1])                         #right
-
-                except IndexError:
-                    pass
-
-
+        self.mapping((y_patition,x_patition))
         """
         + big, normal, small: die Größe von Räume kontrollieren
         - Normalerweise 30% von Räume sind größ, fast 50% sind durchschnittlich,  die übrigen sind Klein
         """
 
         big, normal, small = self.sizeControl(numberOfRoom)
+        id = list(np.arange(0,numberOfRoom,1))
 
-
+        safetyFactor = [2,2.5]
         # Räume in den zufälligen Feldern erzeugt
+
         while (count !=  0):
-            key =   choice(list(randomZone))
-            random = randomZone.get(key)
+            key = choice(id)
+
+            keyCo = self.mappingCo.get(key) #key Coordinates
+            id.remove(key)                  # remove id
+
+            start = self.mapping[keyCo[0]][keyCo[1]]['randomZone'][0]
+            end = self.mapping[keyCo[0]][keyCo[1]]['randomZone'][1]
+            nearbyField = self.mapping[keyCo[0]][keyCo[1]]['neightbor']
+            nearbyDirection = self.mapping[keyCo[0]][keyCo[1]]['neightbor']
+
 
             # größste Raum
             if (big != 0):
 
-                b = Room(random,(floor((random[1][0] - random[0][0])/2 - 1),floor((random[1][1] - random[0][1])/2 - 1)),count, key, neighbor.get(key))
-                self.rooms.append(b)
+                b = Room((start,end),(floor(abs(start[0] - end[0])/safetyFactor[0] - 1),floor(abs(start[1] - end[1])/safetyFactor[0] - 1)),count, key, nearbyField ,nearbyDirection)
+                self.mapping[keyCo[0]][keyCo[1]]['room'] = count
                 b.mapImplement(self.dMap,10)
+                self.rooms.append(b)
+
                 big -= 1
 
             # normale Raum
             elif(normal != 0):
-                n = Room(random,(floor((random[1][0] - random[0][0])/2.5 - 1),floor((random[1][1] - random[0][1])/2.5 - 1)),count,key,neighbor.get(key))
-                self.rooms.append(n)
+
+                n = Room((start,end),(floor(abs(start[0] - end[0])/safetyFactor[1] - 1),floor(abs(start[1] - end[1])/safetyFactor[1] - 1)),count, key, nearbyField ,nearbyDirection)
+                self.mapping[keyCo[0]][keyCo[1]]['room'] = count
                 n.mapImplement(self.dMap,10)
+                self.rooms.append(n)
+
                 normal -= 1
 
             # kleine Raum
             elif(small != 0):
-                s = Room(random,(1,1),count,key,neighbor.get(key))
-                self.rooms.append(s)
+                s = Room((start,end),(1,1),count,key,nearbyField ,nearbyDirection)
+                self.mapping[keyCo[0]][keyCo[1]]['room'] = count
                 s.mapImplement(self.dMap,10)
+                self.rooms.append(s)
+
                 small -= 1
 
-            try:
-                del randomZone[key]
-            except KeyError:
-                pass
             count -= 1
 
+            self.rooms = sorted(self.rooms,key = lambda x: x.getID())
+
+        self.dataConverting()
+
         return self.dMap
+
+
+    def mapping(self,partition):
+
+        # die Karte wird kleiner geteilt
+        y_axis = np.arange(0,self.shape[0] + 1,int(self.shape[0] / partition[0]))
+        x_axis = np.arange(0,self.shape[1] + 1,int(self.shape[1] / partition[1]))
+
+        # den Mangel ergänzen
+        if (max(y_axis) != self.shape[0] ):    y_axis[len(y_axis) -1 ] = self.shape[0]
+        if (max(x_axis) != self.shape[1] ):    x_axis[len(x_axis) -1 ] = self.shape[1]
+
+
+        # die Liste von den zufälligen Feldern
+        self.mappingCo = {}  # mappingCOordinates
+        fieldID = 0
+
+        # map
+        self.mapping = np.zeros((len(y_axis)-1,len(x_axis) - 1), dtype = object)
+
+        mappingShape = np.shape(self.mapping)
+
+        for row in range(0, mappingShape[0]):
+            for column in range(0,mappingShape[1]):
+
+                limit = [   ( y_axis[row],      x_axis[column]),            #root
+                            ( y_axis[row + 1] , x_axis[column + 1] )    ]   #limit
+
+                self.mapping[row][column] = {'fieldID': fieldID, 'randomZone': [], 'neightbor': [], 'neightborDirection' : [], 'room': 0}
+                self.mapping[row][column]['randomZone'].extend(limit)
+                self.mappingCo.setdefault(fieldID, []).extend([row,column])
+
+                fieldID += 1
+
+
+
+        for row in range(0, mappingShape[0]):
+            for column in range(0,mappingShape[1]):
+
+                neighbor  = [(row + 1 , column,     mappingShape[0],    0),       #bottom
+                             (row - 1 , column,     mappingShape[0],    0),       #top
+                             (row ,     column + 1, mappingShape[1],    1),       #right
+                             (row ,     column - 1, mappingShape[1],    1)  ]     #left
+
+                nd = [(0,1),(0,-1),(1,1),(1,-1),]
+
+                #neightborDirection
+                for c in range(len(neighbor)):
+                    axis = neighbor[c][3]
+                    if (neighbor[c][axis] > -1 and (neighbor[c][axis] < neighbor[c][2])):
+                        self.mapping[row][column]['neightbor'].append(self.mapping[neighbor[c][0]][neighbor[c][1]]['fieldID'])
+                        self.mapping[row][column]['neightborDirection'].append(nd[c])
 
 
     # 2 nächste Faktoren von der Anzahl des Raumes berechnen
@@ -273,7 +322,7 @@ class Dungeon:
         minimum = min(factor)
         candidate = (factor[0] * factor[1])
 
-        if (min(self.compare) <= floor(max(self.compare)/3 * 2)):
+        if (min(self.shape) <= floor(max(self.shape)/3 * 2)):
 
             if (candidate < 4 ):    return factor
             elif (candidate >= 4 and candidate < 15):
@@ -285,6 +334,7 @@ class Dungeon:
                         return self.factors(candidate+1)
                     else:
                         return self.roomDescrement(candidate)
+
 
         for index in range(interval):
             candidate += 1
@@ -304,7 +354,7 @@ class Dungeon:
 
     # Größe von Räume kontrollieren
     def ratioControl(self,factor):
-        return [floor(max(self.compare)/max(factor)),floor(min(self.compare)/min(factor))]
+        return [floor(max(self.shape)/max(factor)),floor(min(self.shape)/min(factor))]
 
     def roomDescrement(self,candidate):
 
@@ -318,37 +368,93 @@ class Dungeon:
         if (numberOfRoom == 2): return [1,1,0]
         if (numberOfRoom > 2):  return ceil((30 * numberOfRoom)/ 100), floor((50 * numberOfRoom)/ 100) ,abs(numberOfRoom - (ceil((30 * numberOfRoom)/ 100) + floor((50 * numberOfRoom)/ 100)))
 
+    def dataConverting(self):
+
+        shape =     np.shape(self.mapping)
+        temp =      np.reshape(self.mapping,(1,shape[0] * shape[1]))
+
+        for i in temp[0]:
+            
+            roomID = i.get('room') - 1
+            i.setdefault('doors')
+            i['doors'] = self.rooms[roomID].getDoors()
+            
+        self.mapping = temp
 
 
-    # Weg erstellen
+
     def roadCreating(self):
 
-        r = Road(self.dMap)
+        for field in self.mapping[0]:
 
-        for key in self.borders.keys():
-            if (key > min(self.borders.keys())):
-                try:
-                    #print(self.borders[key])
-                    b = choice(self.borders[key])
-                    c = choice(self.borders[key -1])
-                    r.roadCreating(b,c,0,0)
-                    r.fillRoad(b,c)
-                    r.road =[]
-                except RecursionError as re:
-                    print('Sorry but this maze solver was not able to finish '
-                     'analyzing the maze: {}'.format(re.args[0]))
+            startCandidates = field.get('neightborDirection')
+            startNeightbor = field.get('neightbor')
 
+            while  len(startNeightbor) != 0:
+
+                startFieldID = field.get('fieldID')
+                endFieldID = field.get('neightbor')[0]
+
+                startDirection = startCandidates[0]
+                start = field.get('doors').get(startDirection)[0]
+
+                endFieldSelected = self.mapping[0][endFieldID]
+                endDirection = (startCandidates[0][0],startCandidates[0][1] * -1)
+
+                end  = endFieldSelected.get('doors').get(endDirection)[0]
+                
+                startNeightbor.remove(endFieldID)
+               
+                startCandidates.remove(startDirection)
+
+                endFieldSelected.get('neightbor').remove(startFieldID)
+
+                
+                endFieldSelected.get('neightborDirection').remove(endDirection)
+
+                #def __init__(self, map, start, end, roadID,startingRoomID,destinationID):
+                tempRoad = Road(self.dMap,start,end,1,startFieldID,endFieldID)
+
+                self.roads.append(tempRoad)
+
+        self.printRoad()
 
     # Dungeon zurückgeben
     def returnArray(self):
         return self.dMap
 
+    def printRoad(self):
+        for road in self.roads:
+            print(road.getRoad())
+            for node in road.getRoad():
+                self.dMap[node[0]][node[1]] = 3
+        return self.dMap
+
+    def randomRoad(self):
+
+        startRoom = choice(self.rooms)
+        skeys = list(startRoom.getBorder(True).keys())
+        startDirection = choice(skeys)
+        start = choice(startRoom.getBorder(True).get(startDirection))
+
+        endRoom = choice(self.rooms)
+        ekeys = list(endRoom.getBorder(True).keys())
+        endDirection = choice(ekeys)
+        end = choice(startRoom.getBorder(True).get(endDirection))
+        print(start,end)
+
+        randomRoad = Road(self.dMap,start,end,1,startRoom.getID,endRoom.getID)
+
+        self.roads.append(randomRoad)
+
+
 
 if __name__ == '__main__':
-    test = Dungeon(30,18,40)
-    test.multiRoom(5,6)
-    for r in test.rooms:
-        print(r)
+    test = Dungeon(35,20)
+    test.multiRoom(5,4)
+
+    test.roadCreating()
+
 
     arr = test.returnArray()
     plt.imshow(arr, interpolation='nearest',cmap=plt.cm.gray)
