@@ -106,9 +106,9 @@ img_height = int(img_len / dungeon_size[0]) * dungeon_size[1]
 img_res = (img_len, img_height)
 
 #Create Dungeon
-dungeon = Dungeon(dungeon_size[0], dungeon_size[1], 50)
+dungeon = Dungeon(dungeon_size[0], dungeon_size[1])
 dungeon.multiRoom(room_density[0], room_density[1])
-#dungeon.roadCreating()
+dungeon.roadCreating()
 map = dungeon.returnArray()
 
 #Generate encounter
