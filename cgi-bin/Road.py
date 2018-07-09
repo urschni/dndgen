@@ -1,200 +1,282 @@
+# -*- coding: utf-8 -*-
 __author__ = 'tunghoang'
+
 import numpy as np
-#from  DnD_0054 import Dungeon
+#from DnD0060 import *
 from math import *
 import matplotlib.pyplot as plt
 from random import randint, choice
-"""
-Version 0.060
-"""
 
 class Road:
-    map = []                # DnD map
-    field = []              # enthält alle Knoten, die keine Raum sind
-    graph = {}              # Liste die Knoten, die untereinander adjazent sind
-    costList = {}
-    road = []               # alle Knoten vom endliche Weg
-    widthOfMap = 0
-    heightOfMap = 0
-
 
     # Initialisierung vom Weg-Objekt Konstruktur
-    def __init__(self, map,):
+    def __init__(self, map, start, end, roadID,startingRoomID,destinationID):
+        self.fromID = startingRoomID    
+        self.toID = destinationID       
+        self.roadID = roadID            
+        self.start = start              
+        self.end = end                  
+        self.road = []                  
         self.map = map
-
         self.widthOfMap = np.shape(self.map)[0]
         self.heightOfMap = np.shape(self.map)[1]
-        self.mapScanner()
-        #self.pfad_breitensuche()
+        self.Road()
+  
+    def mapCheck(self, node ,direction, distance):
+    # direction  = (axis,direction)  y = 0, x = 1, positive = -1, negative = 1
+    # bottom  = (0,1) , right  = (1,1), bottom  = (0,-1), bottom  = (1, -1)
+        selected = [node[0],node[1]]
+        
+        try:
+            
+            selected[direction[0]] += distance * direction[1]
+            if ((selected[0] >= 0) and (selected[1] >= 0)):     # y,x > 0
+                return self.map[selected[0]][selected[1]]       # giá trị của tọa độ trên map
+            else: return -1
+            
+        except (IndexError):
+                return -1
 
 
-    # diese Methode überprüft alle Knoten in der Karte und dann:
-    # Field von den Knoten, auf den der Weg aufbaut werden kann und auf self.field speichert
-    # Graph G wird erzeugt, der enthält die Verbindung zwischen Knoten miteinander
-    def mapScanner(self):
+    def lineCheck(self,node,direction,distance):
+
+        selected = [node[0],node[1]]        #pointer
+        result = []
+
+        for i in range(distance):
+            # trục của node += 1/-1
+            selected[direction[0]] += direction[1]
+            try:
+                if ((selected[0] >= 0) and (selected[1] >= 0)):         # y,x > 0
+                    result.append(self.map[selected[0]][selected[1]])
+                else: result.append(False)
+            except (IndexError):
+                result.append(False)
+
+        return result
 
 
-        for row in range(self.heightOfMap):
-            for column in range(self.widthOfMap):
 
-                if self.map[row][column] == 0 or self.map[row][column] == 20:   #map[y_pos][x_pos] = 0 bedeutet, dass diese Knote frei ist
-                    self.field.append((row,column))                             #y_pos und x_pos werden verbunden als string mit der Form 'y_pos + x_pos'
+    def obstacleAvoid(self,start,end,direction):
+
+        axis = abs(direction[0] - 1)               
+        side = 1                                    
+        if direction[0] == 1: rev = 0               
+        else: rev = 1
+        # 0 = positive , 1 = negative , 2 = density
+        selectedList = [[start[0],start[1]] , [start[0],start[1]], [start[0],start[1]]]
+
+        endLoop = [True,True,True]                  
+        result = [[],[]]                            
+
+        selectedList[2][direction[0]] += direction[1]   #density + 1
+
+        
+        while (True in endLoop):
+           
+            terms = [self.mapCheck(selectedList[0],direction,2),self.mapCheck(selectedList[1],direction,2),self.mapCheck(selectedList[2],direction,1)]
+
+            if (terms[0] == 10):            # room = true
+                result[0].append((selectedList[0][0],selectedList[0][1]))
+                selectedList[0][axis] -= 1  # pos -= 1
+                
+            elif (terms[0] == -1):          
+                result[0].append(False)
+                endLoop[0] = False
+            else: endLoop[0] = False        # room = False stop
+
+            if (terms[1] == 10 ):           # room = true
+                result[1].append((selectedList[1][0],selectedList[1][1]))
+                selectedList[1][axis] += 1  # neg += 1
+                
+            elif (terms[1] == -1):          
+                result[1].append(False)
+                endLoop[1] = False          # room = False stop
+            else: endLoop[1] = False
+
+            if (terms[2] == 0): endLoop[2] = False 
+            else:selectedList[2][direction[0]] += direction[1]
+
+                
+        if  selectedList[2][direction[0]] + direction[1] <= end[direction[0]]:
+            selectedList[2][direction[0]] += direction[1]   #density + 1
+
+            
+        sTerms = [abs(selectedList[0][axis] - end[axis]),abs(selectedList[1][axis] - end[axis])]
+
+        if False in result[0]:
+            result.remove(result[0])        # pos = False
+            selectedList.remove(selectedList[0])
+
+        elif False in result[1]:          # pos = True
+            result.remove(result[1])
+            selectedList.remove(selectedList[1])
+            side = -1
+        elif sTerms[0] > sTerms[1]:      # pos = False
+            result.remove(result[0])
+            selectedList.remove(selectedList[0])
+
+        else:                               # pos = True
+            result.remove(result[1])
+            selectedList.remove(selectedList[1])
+            side = -1
+
+        result[0].append((selectedList[0][0],selectedList[0][1]))
+
+        if self.mapCheck(selectedList[0],(axis,side),1) == 0:    #margin +1 free
+            selectedList[0][axis] += side
+            result[0].append((selectedList[0][0],selectedList[0][1]))
+
+        if ((self.mapCheck(selectedList[1],direction,1) == 0) and (selectedList[1][direction[0]] + direction[1] <= end[direction[0]])) :
+            selectedList[1][direction[0]] += direction[1]
+
+       
+        """ end compare """
+
+        Act = False        
+
+        if start[rev] == end[rev]:
+            if direction[0] == 0:   mid = [selectedList[1][0],selectedList[0][1]]       # mid = [density[0],rule[1]]
+            else:                   mid = [selectedList[0][0],selectedList[1][1]]       # mid = [rule[0],density[1]]
+
+        else:
+
+            if direction[0] == 0:   selectedList[1] = (end[0],selectedList[0][1])       # density = [end[0],rule[1]]
+            else:                   selectedList[1] = (selectedList[0][0],end[1])       # density = [rule[0],end[1]]
+            Act = True
 
 
-        # self.graph erzeugen
-        for key in self.field:
-            right =     (key[0],        key[1] + 1)                     # recht, link , unter und ober Knoten werden erzeugt und
-            bottom =    (key[0] + 1,    key[1])                         # wird überprüft, ob die frei sind oder nicht
-            left =      (key[0],        key[1] - 1)
-            top =       (key[0] - 1,    key[1])
+        
 
 
-            #  Knoten auf self.graph einfügen
-            if (right in self.field):
-                self.graph.setdefault(key, []).append(right)
-                self.costList.setdefault(right )
-                self.costList[right] = 1
+        """ created point """
+        if Act:
+           
+            for i in range(abs(selectedList[0][direction[0]] - selectedList[1][direction[0]])):
+                selectedList[0][direction[0]] += direction[1]
+                result[0].append((selectedList[0][0],selectedList[0][1]))
+            result.append(selectedList[1])
 
-            if (bottom in self.field):
-                self.graph.setdefault(key, []).append(bottom)
-                self.costList.setdefault(bottom)
-                self.costList[bottom] = 1
+        else:
+           
+             # rule -> mid
+            for i in range(abs(selectedList[0][direction[0]] - mid[direction[0]])):
+                selectedList[0][direction[0]] += direction[1]
+                result[0].append((selectedList[0][0],selectedList[0][1]))
 
-            if (left in self.field):
-                self.graph.setdefault(key, []).append(left)
-                self.costList.setdefault(left)
-                self.costList[left] = 1
+            # mid -> end
+            for i in range(abs(mid[axis] - selectedList[1][axis])):
+                mid[axis] -= side
+                result[0].append((mid[0],mid[1]))
 
-            if (top in self.field):
-                self.graph.setdefault(key, []).append(top)
-                self.costList.setdefault(top)
-                self.costList[top] = 1
+        return result
+
+    def repair(self, node, destinationD):
+        # pointer check True
+        #destinationD = (axis,value)
+        selected =[node[0],node[1]]
+     
+        while( self.mapCheck(selected,destinationD,1) == 10):
+            selected[destinationD[0]] += destinationD[1]
+
+        # margin + 2
+        if (self.mapCheck(selected,destinationD,2) == 0):
+            selected[destinationD[0]] += (destinationD[1] * 2 )
+        # margin + 1
+        elif (self.mapCheck(selected,destinationD,2) == 0):
+            selected[destinationD[0]] += (destinationD[1] * 1 )
+
+        else: return 0
+
+        return selected
+
+    def setDirection(self):
+
+        coordinate = [self.start[0] - self.end[0], self.start[1] - self.end[1]]
+        direction = [[0,0],[1,0]]
 
 
-        return self.graph
+        if coordinate[0] < 0: direction[0][1] = 1           # start(y) - end(y) < 0 => direction  = negative
+        elif coordinate[0] > 0: direction[0][1] = -1        # start(y) - end(y) > 0 => direction  = positive
+        else:
+            direction[0][0] = 1                             # start(y) - end(y) == 0 => same y
+            if coordinate[1] < 0: direction[0][1] = 1
+            if coordinate[1] > 0: direction[0][1] = -1
 
-    #Breadth-First-Search implementieren mit startNode und endNode
-    def pfad_breitensuche(self,startNode,endNode):
-        self.startNode = startNode[::-1]
-        self.endNode = endNode[::-1]
+        if coordinate[1] < 0: direction[1][1] = 1           # start(x) - end(x) < 0 => direction  = negative
+        elif coordinate[1] > 0: direction[1][1] = -1        # start(x) - end(x) < 0 => direction  = positve
+        else:
+            direction[1][1] = 0
+            if coordinate[0] < 0: direction[1][0] = 1
+            if coordinate[0] > 0: direction[1][0] = -1
 
-        check1 = self.graph.__contains__(self.startNode)  #ueberprueft, ob Start-Knoten in Graphen ist.
-        check2 = self.graph.__contains__(self.endNode)    #ueberprueft, ob End-Knoten in Graphen ist.
+        random = randint(0,1)
+        if random == 1: direction[::-1]
 
-        if(check1 & check2):
-            queue = [[self.startNode]]
+        return direction
 
-            while(len(queue) != 0):
+    def Road(self):
 
-                pfad = queue.pop(0)
-                aktueller_knoten = pfad[len(pfad) - 1]
-                naechste_knoten = set(self.graph[aktueller_knoten]) - set(pfad)
+        direction = self.setDirection()
 
-                for knoten in sorted(naechste_knoten):
+        # set mid
+        if (direction[0][0] == 0):
+             mid = [self.end[0],self.start[1]]
+        else:   mid = [self.start[0],self.end[1]]
 
-                    queue.append(pfad + [knoten])
-                    if (knoten == self.endNode):
+        if (self.mapCheck(mid,direction[0],0) == 10):
+            mid = self.repair(mid,direction[1])
 
-                        self.road.append(pfad + [knoten])
-                        queue = []
-                        break
+        start = list(self.start)
+        first = self.lineCheck(start,direction[0],abs(start[direction[0][0]] - mid[direction[0][0]]))
+        self.road.append(self.start)
+        i = 0
 
-        temp = []
+        while (i < len(first)):
+            if first[i] == 0:
+                start[direction[0][0]] += direction[0][1]
+                self.road.append((start[0],start[1]))
+                i += 1
+            else:
+                # tạo m
+                start[direction[0][0]] -= direction[0][1]
+                self.road.remove(self.road[len(self.road)-1])
 
+                p = self.obstacleAvoid(start,(mid[0],mid[1]),direction[0])
+                self.road.extend(p[0])
+
+                a = p[0][len(p[0])-1]
+                if (a[direction[0][0]] - self.end[direction[0][0]]) != 0:
+                    i = a[direction[0][0]]
+                    start = [a[0],a[1]]
+                else: break
+
+
+        nd = self.lineCheck(mid,direction[1],abs(mid[direction[1][0]] - self.end[direction[1][0]]))
+
+        #print(mid)
+        self.road.append((mid[0],mid[1]))
+        n = 0
+        while (n < len(nd)):
+            if nd[n] == 0:
+                mid[direction[1][0]] += direction[1][1]
+                self.road.append((mid[0],mid[1]))
+                n += 1
+            else:
+                mid[direction[1][0]] -= direction[1][1]
+                self.road.remove(self.road[len(self.road)-1])
+
+                p = self.obstacleAvoid(mid,self.end,direction[1])
+                self.road.extend(p[0])
+                a = p[0][len(p[0])-1]
+                if (a[direction[1][0]] - self.end[direction[1][0]]) != 0:
+                    n = a[direction[1][0]]
+                    mid = [a[0],a[1]]
+                else: break
+
+
+        return  set(self.road)
+
+    def getRoad(self):
         return self.road
-
-    def nearestPoint(self,node,start,end):
-        axis = 1
-        x = node[1]
-        y = node[0]
-        # top bottom left right
-        check =[False ,False ,False ,False]
-
-        while(axis < 100):
-            # top bottom left right
-            candidates = [(y - axis, x), (y + axis, x),(y,x - axis),(y,x + axis)]
-
-            for r in range(0,len(candidates)):
-                if candidates[r] in self.field:
-                    check[r] = True
-
-            # alle nicht False sind
-            if (True in check):
-                for c in range(len(check)):
-                    if (check[c] == True) and (candidates[c] != start)  and  (candidates[c] != end):
-                        if ((candidates[c][0] < start[0] or candidates[c][0] > end[0]) and (c == 2 or c == 3)):
-                            return candidates[c]
-                        return candidates[c]
-
-            axis+=1
-
-
-    def roadCreating(self,start,end,direction,depth):
-        global count
-
-        if end == start: return
-        elif self.nodeCheck(start,end) == True: return
-
-        d = direction
-        if (end[0] - start[0] <= 0) :
-            if (d == 0):        y_mid = floor(abs(end[0] - start[0])/2) + end[0]
-            elif(d == 1):       y_mid = ceil(abs(end[0] - start[0])/2) + end[0]
-        else:
-            if (d == 0):        y_mid = floor(abs(end[0] - start[0])/2) + start[0]
-            elif(d == 1):       y_mid = ceil(abs(end[0] - start[0])/2) + start[0]
-
-
-        if (end[1] - start[1] <= 0) :
-            if (d == 0):        x_mid = floor(abs(end[1] - start[1])/2) + end[1]
-            elif(d == 1):       x_mid = ceil(abs(end[1] - start[1])/2) + end[1]
-        else:
-            if (d == 0):        x_mid = floor(abs(end[1] - start[1])/2) + start[1]
-            elif(d == 1):       x_mid = ceil(abs(end[1] - start[1])/2) + start[1]
-
-
-        mid = (y_mid,x_mid)
-
-        depth += 1
-        if (mid not in self.field):
-
-            mid = self.nearestPoint((y_mid,x_mid),start,end)
-
-
-
-
-        self.roadCreating(start,mid,0,depth)
-        self.roadCreating(mid,end,1,depth)
-        self.road.append(mid)
-
-
-        return mid
-
-    def nodeCheck(self,root,next):
-
-        list = []
-
-        for y in range(root[0]-1, root[0]+2):
-            for x in range(root[1]-1, root[1]+2):
-                list.append((y,x))
-
-
-        if (next in list):
-
-            return True
-
-        return False
-
-
-    def fillRoad(self,start,end):
-        for r in self.map:
-            for node in self.road:
-                self.map[node[0]][node[1]] = 2.5
-        self.map[start[0]][start[1]] = 9
-        self.map[end[0]][end[1]] = 6
-
-
-
-
-
-
 
