@@ -133,11 +133,11 @@ if monster_allow or loot_allow or trap_allow:
 #create unique name
 img_name = str(uuid.uuid4().hex)
 img_path = "./saved_dungeons/" + img_name + ".png"
+
 # print Dungeon
 bw_map = np.zeros((dungeon_size[0], dungeon_size[1], 3), np.uint8)
-bw_map[map > 0] = [255, 255, 255]
-bw_map[map == 2.5] = [128, 128, 128]
-bw_map[map == 9] = [128, 0, 0]
+bw_map[map == 10] = [255, 255, 255]
+bw_map[map == 3] = [128, 128, 128]
 bw_map[map == 6] = [128, 0, 0]
 img = Image.fromarray(bw_map, mode='RGB')
 img = img.resize(img_res)
@@ -161,7 +161,8 @@ for y in range(0, img.height, step_size):
 
 
 # Print RoomNumbers
-draw.text((250, 250), "1", fill=128)
+for k,v in dungeon.getCorner().items():
+	draw.text(v[0], str(k), fill=128)
 
 img.save(img_path)
 
