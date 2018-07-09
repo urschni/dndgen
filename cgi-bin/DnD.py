@@ -392,32 +392,46 @@ class Dungeon(object):
             startCandidates = field.get('neightborDirection')
             startNeightbor = field.get('neightbor')
 
-            while  len(startNeightbor) != 0:
+            if field.get('room') != 0:
 
-                startFieldID = field.get('fieldID')
-                endFieldID = field.get('neightbor')[0]
+                while len(startNeightbor) != 0:
 
-                startDirection = startCandidates[0]
-                start = field.get('doors').get(startDirection)[0]
+                    startFieldID = field.get('fieldID')
+                    endFieldID = field.get('neightbor')[0]
 
-                endFieldSelected = self.mapping[0][endFieldID]
-                endDirection = (startCandidates[0][0],startCandidates[0][1] * -1)
+                    startDirection = startCandidates[0]
+                    start = field.get('doors').get(startDirection)[0]
 
-                end  = endFieldSelected.get('doors').get(endDirection)[0]
-                
-                startNeightbor.remove(endFieldID)
-               
-                startCandidates.remove(startDirection)
+                    endFieldSelected = self.mapping[0][endFieldID]
+                    endDirection = (startCandidates[0][0],startCandidates[0][1] * -1)
+                    
+                    endRoom = endFieldSelected.get('room')
 
-                endFieldSelected.get('neightbor').remove(startFieldID)
+                    if endRoom == 0:
+                        
+                        startNeightbor.remove(endFieldID)
+                        
+                        startCandidates.remove(startDirection)
+                        
+                        endFieldSelected.get('neightbor').remove(startFieldID)
+                       
+                        endFieldSelected.get('neightborDirection').remove(endDirection)
 
-                
-                endFieldSelected.get('neightborDirection').remove(endDirection)
-
-                #def __init__(self, map, start, end, roadID,startingRoomID,destinationID):
-                tempRoad = Road(self.dMap,start,end,1,startFieldID,endFieldID)
-
-                self.roads.append(tempRoad)
+                    else:
+                        #print(startNeightbor,startFieldID)
+                       
+                        end  = endFieldSelected.get('doors').get(endDirection)[0]
+                        
+                        startNeightbor.remove(endFieldID)
+                        
+                        startCandidates.remove(startDirection)
+                        
+                        endFieldSelected.get('neightbor').remove(startFieldID)
+                        
+                        endFieldSelected.get('neightborDirection').remove(endDirection)
+                        #def __init__(self, map, start, end, roadID,startingRoomID,destinationID):
+                        tempRoad = Road(self.dMap,start,end,1,startFieldID,endFieldID)
+                        self.roads.append(tempRoad)
 
         self.printRoad()
 
