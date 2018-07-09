@@ -433,6 +433,12 @@ class Dungeon(object):
                         tempRoad = Road(self.dMap,start,end,1,startFieldID,endFieldID)
                         self.roads.append(tempRoad.getRoad())
 
+        gate = self.getIn()
+        out = self.getOut()
+
+        self.roads.append(gate)
+        self.roads.append(out)
+        
         self.printRoad()
 
     # Dungeon zurückgeben
@@ -478,6 +484,70 @@ class Dungeon(object):
         randomRoad = Road(self.dMap,start,end,1,startRoom.getID,endRoom.getID)
 
         self.roads.append(randomRoad)
+
+    def gateway(self,node,direction):
+
+        endValue = node[direction[0]]
+        selected = [0,0]
+        reverse = abs(direction[0] - 1)
+        selected[reverse] = node[reverse]
+
+        wayIn = [(selected[0],selected[1])]
+
+        for i in range(endValue):
+            selected[direction[0]] += direction[1]
+            wayIn.append((selected[0],selected[1]))
+
+        return wayIn
+
+    def wayOut(self,node,direction):
+
+        if direction[0] == 0:   endMax = self.shape[0] -1
+        else:                   endMax = self.shape[1] -1
+
+        endValue = [node[0],node[1]]
+        endValue[direction[0]] = endMax
+        selected = [node[0],node[1]]
+
+        wayOut = [(selected[0],selected[1])]
+
+        rang = abs(endMax - node[direction[0]])
+        print(rang)
+
+        for i in range(rang):
+            selected[direction[0]] += direction[1]
+            wayOut.append((selected[0],selected[1]))
+
+        return wayOut
+
+
+    def getOut(self):
+
+        directionList = [(1,1),(0,1)]
+        direction = choice(directionList)
+
+        for f in range(len(self.mapping[0])-1,-1,-1):
+            room = self.mapping[0][f].get('room')
+            if room != 0:
+                endNode = self.mapping[0][f].get('doors').get(direction)[0]
+
+                getOut = self.wayOut(endNode,direction)
+                break
+
+        return getOut
+
+    def getIn(self):
+
+        directionList = [(1,1),(0,1)]
+        direction = choice(directionList)
+        reversedDirection = (direction[0],direction[1] * -1)
+
+        endNode = self.mapping[0][0].get('doors').get(reversedDirection)[0]
+
+        getIn = self.gateway(endNode,direction)
+
+        return getIn
+
 
 
 
