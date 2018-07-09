@@ -431,7 +431,7 @@ class Dungeon(object):
                         endFieldSelected.get('neightborDirection').remove(endDirection)
                         #def __init__(self, map, start, end, roadID,startingRoomID,destinationID):
                         tempRoad = Road(self.dMap,start,end,1,startFieldID,endFieldID)
-                        self.roads.append(tempRoad)
+                        self.roads.append(tempRoad.getRoad())
 
         self.printRoad()
 
