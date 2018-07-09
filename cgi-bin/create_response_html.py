@@ -44,7 +44,13 @@ def createResponse(debug, name, attributes, encounters,img_name):
     #Create downlaodable pdf file
     
     output_path = "saved_dungeons/"+img_name+".pdf"
-    pdfkit.from_file(file_path, output_path)
+    options = {
+        'margin-top': '0cm',
+        'margin-right': '0cm',
+        'margin-bottom': '0cm',
+        'margin-left': '0cm'
+    }
+    pdfkit.from_file(file_path, output_path, options)
 
     
     
