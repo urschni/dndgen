@@ -433,12 +433,9 @@ class Dungeon(object):
                         tempRoad = Road(self.dMap,start,end,1,startFieldID,endFieldID)
                         self.roads.append(tempRoad.getRoad())
 
-        gate = self.getIn()
-        out = self.getOut()
+        self.roads.append(self.entranceCreating())
+        self.roads.append(self.exitCreating())
 
-        self.roads.append(gate)
-        self.roads.append(out)
-        
         self.printRoad()
 
     # Dungeon zurückgeben
@@ -459,95 +456,55 @@ class Dungeon(object):
     
     def printRoad(self):
         for road in self.roads:
-            max = len(road)
+            
+            listNode = road.getRoad()
+            max = len(listNode)
+
             for n in range(max):
                 if ((n > 0) and (n < max - 1)):
-                    self.dMap[road[n][0]][road[n][1]] = 3
+                    self.dMap[listNode[n][0]][listNode[n][1]] = 3
                 else:
-                    self.dMap[road[n][0]][road[n][1]] = 6
+                    self.dMap[listNode[n][0]][listNode[n][1]] = 6
 
         return self.dMap
 
-    def randomRoad(self):
+   
 
-        startRoom = choice(self.rooms)
-        skeys = list(startRoom.getBorder(True).keys())
-        startDirection = choice(skeys)
-        start = choice(startRoom.getBorder(True).get(startDirection))
+    def exitCreating(self):
 
-        endRoom = choice(self.rooms)
-        ekeys = list(endRoom.getBorder(True).keys())
-        endDirection = choice(ekeys)
-        end = choice(startRoom.getBorder(True).get(endDirection))
-        print(start,end)
-
-        randomRoad = Road(self.dMap,start,end,1,startRoom.getID,endRoom.getID)
-
-        self.roads.append(randomRoad)
-
-    def gateway(self,node,direction):
-
-        endValue = node[direction[0]]
-        selected = [0,0]
-        reverse = abs(direction[0] - 1)
-        selected[reverse] = node[reverse]
-
-        wayIn = [(selected[0],selected[1])]
-
-        for i in range(endValue):
-            selected[direction[0]] += direction[1]
-            wayIn.append((selected[0],selected[1]))
-
-        return wayIn
-
-    def wayOut(self,node,direction):
-
-        if direction[0] == 0:   endMax = self.shape[0] -1
-        else:                   endMax = self.shape[1] -1
-
-        endValue = [node[0],node[1]]
-        endValue[direction[0]] = endMax
-        selected = [node[0],node[1]]
-
-        wayOut = [(selected[0],selected[1])]
-
-        rang = abs(endMax - node[direction[0]])
-        print(rang)
-
-        for i in range(rang):
-            selected[direction[0]] += direction[1]
-            wayOut.append((selected[0],selected[1]))
-
-        return wayOut
-
-
-    def getOut(self):
 
         directionList = [(1,1),(0,1)]
         direction = choice(directionList)
+        print(direction)
 
         for f in range(len(self.mapping[0])-1,-1,-1):
             room = self.mapping[0][f].get('room')
             if room != 0:
-                endNode = self.mapping[0][f].get('doors').get(direction)[0]
+                startNode = self.mapping[0][f].get('doors').get(direction)[0]
+                roomID = self.mapping[0][f].get('room')
 
-                getOut = self.wayOut(endNode,direction)
+                endNode = [self.shape[0] -1,self.shape[1] -1]
+
+                #def __init__(self, map, start, end, roadID,startingRoomID,destinationID):
+                exit = Road(self.dMap,startNode,endNode,-1,-1,roomID)
+
                 break
 
-        return getOut
+        return exit
 
-    def getIn(self):
+    def entranceCreating(self):
 
         directionList = [(1,1),(0,1)]
         direction = choice(directionList)
         reversedDirection = (direction[0],direction[1] * -1)
 
         endNode = self.mapping[0][0].get('doors').get(reversedDirection)[0]
+        roomID = self.mapping[0][0].get('room')
 
-        getIn = self.gateway(endNode,direction)
+        ##def __init__(self, map, start, end, roadID,startingRoomID,destinationID):
+        entrance = Road(self.dMap,(0,0),endNode,-1,-1,roomID)
 
-        return getIn
-
+        return entrance
 
 
 
