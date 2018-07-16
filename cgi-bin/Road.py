@@ -10,7 +10,7 @@ from random import randint, choice
 class Road:
 
     # Initialisierung vom Weg-Objekt Konstruktur
-    def __init__(self, map, start, end, roadID,startingRoomID,destinationID):
+    def __init__(self, map, start, end, roadID,startingRoomID,destinationID, *random):
         self.fromID = startingRoomID    
         self.toID = destinationID       
         self.roadID = roadID            
@@ -20,7 +20,10 @@ class Road:
         self.map = map
         self.widthOfMap = np.shape(self.map)[0]
         self.heightOfMap = np.shape(self.map)[1]
-        self.Road()
+        if random:        
+            self.setRoadONB()
+        else:           
+            self.setRoadONB()
   
     def mapCheck(self, node ,direction, distance):
     # direction  = (axis,direction)  y = 0, x = 1, positive = -1, negative = 1
@@ -279,4 +282,66 @@ class Road:
 
     def getRoad(self):
         return self.road
+    
+    def setDirectionONB(self):
+
+        if ((self.mapCheck(self.start,(0,1),1) == 10) or (self.mapCheck(self.start,(0,-1),1) == 10)): return ((0,1),(0,-1))
+        else: return ((1,1),(1,-1))
+
+
+    def setMidPointONB(self,direction):
+
+        fl = floor(abs(self.start[direction[0][0]]- self.end[direction[0][0]])/2)
+        ce = ceil(abs(self.start[direction[0][0]]- self.end[direction[0][0]])/2)
+        midAxis = min(self.start[direction[0][0]], self.end[direction[0][0]]) + choice((fl,ce))
+
+        if direction[0][0] == 0:
+            result = [(midAxis,self.start[1]),(midAxis,self.end[1])]
+            return result
+
+        else:
+            result =[(self.start[0],midAxis),(self.end[0],midAxis)]
+            return result
+
+    def setRoadONB(self):
+
+        keys = [self.start]
+
+        direction = self.setDirectionONB()
+        midList = self.setMidPointONB(direction)
+
+
+        keys.extend(midList)
+        keys.append(self.end)
+
+        for index in range(len(keys)-1):
+
+            edge = self.edgeCreating(keys[index],keys[index + 1])
+            self.road.extend(edge)
+
+        self.road.append(self.end)
+
+
+        return self.road
+
+    def edgeCreating(self,start,end):
+
+        if ((start[0] - end[0]) == 0): mainAxis = 1
+        else: mainAxis = 0
+
+        if start[mainAxis] < end[mainAxis]: value = 1
+        else: value =  -1
+
+        stack = []
+        pointer = [start[0],start[1]]
+
+
+        while(pointer[mainAxis] != end[mainAxis]):
+            stack.append((pointer[0],pointer[1]))
+            pointer[mainAxis] += value
+
+        return stack
+    
+    
+    
 
