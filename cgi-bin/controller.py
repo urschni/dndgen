@@ -117,8 +117,10 @@ number_of_encounter = len(dungeon.rooms)
 encounter = ''
 if monster_allow or loot_allow or trap_allow:
     encounter = '<h2>Encounter</h2>\n'
-    for room_number in range(1, number_of_encounter):
-        encounter += '<h3 id=\"room' + str(room_number) + '\">Room ' + str(room_number) + '</h3>\n'
+    encounter += "<div class=\"container\">\n"
+    for room_number in range(0, number_of_encounter):
+        encounter += "<div class=\"item\">\n"
+        encounter += '<h3 id=\"room' + str(room_number+1) + '\">Room ' + str(room_number+1) + '</h3>\n'
         if monster_allow:
             encounter += '<h4>Monster:</h4>\n'
             encounter += gen_monster_encounter(dungeon_lvl) + '\n'
@@ -130,6 +132,7 @@ if monster_allow or loot_allow or trap_allow:
             if traps is not None:
                 encounter += '<h4>Traps:</h4>\n'
                 encounter += traps
+        encounter += "</div>\n"
 
 # create unique name
 img_name = str(uuid.uuid4().hex)
@@ -168,7 +171,7 @@ for k, v in dungeon.getCorner().items():
 
 img.save(img_path)
 
-include_debug = True
+include_debug = False
 
 # Send attributes to the HTML page- printer
 
