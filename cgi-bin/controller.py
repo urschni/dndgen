@@ -10,6 +10,7 @@ from create_response_html import *
 from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageFont
+from random import randint
 import numpy as np
 import uuid
 
@@ -21,7 +22,7 @@ current_milli_time = lambda: int(round(time.time() * 1000.000))
 # Get the values from the form
 form = cgi.FieldStorage()
 dungeon_name = form.getvalue('dungeon_name')
-dungeon_size_box = form.getvalue('dungeon_size_box')
+dungeon_size_allow = form.getvalue('tapset')
 dungeon_height = form.getvalue('dungeon_size_height')
 dungeon_length = form.getvalue('dungeon_size_length')
 dungeon_size = form.getvalue('dungeon_size')
@@ -44,33 +45,26 @@ for x in form:
 yes_no_to_bool = {'yes': True, 'no': False, None: None}
 # Process HTML form data
 # Process dungeon_size
-dungeon_size_box = yes_no_to_bool[dungeon_size_box]
-if dungeon_size_box:
-    if (dungeon_height and dungeon_length) != None:
-        height = int(dungeon_height)
-        length = int(dungeon_length)
-        dungeon_size = (length, height)
-        max_room_size = (int(length / 4), int(height / 4))
-    else:
-        dungeon_size = (20, 20)
-        max_room_size = (5, 5)
+
+if 'small' == dungeon_size:
+    dungeon_size = (20, 20)
+    max_room_size = (5, 5)
+elif 'medium' == dungeon_size:
+    dungeon_size = (40, 40)
+    max_room_size = (8, 8)
 else:
-    if 'small' == dungeon_size:
-        dungeon_size = (10, 10)
-        max_room_size = (3, 3)
-    elif 'medium' == dungeon_size:
-        dungeon_size = (20, 20)
-        max_room_size = (5, 5)
-    else:
-        dungeon_size = (30, 30)
-        max_room_size = (7, 7)
+    dungeon_size = (60, 60)
+    max_room_size = (12, 12)
 # Process room_density
 if room_density == 'low':
-    room_density = [2, 4]
+    room_num = randint(4,10)
+    room_density = [int(room_num/2), room_num]
 elif room_density == 'medium':
-    room_density = [3, 6]
+    room_num = randint(8,14)
+    room_density = [int(room_num/2), room_num]
 else:
-    room_density = [4, 8]
+    room_num = randint(12,18)
+    room_density = [int(room_num/2), room_num]
 # Process dungeon_lvl
 dungeon_lvl = int(dungeon_lvl)
 # Process party_size
@@ -93,16 +87,9 @@ deadend_allow = yes_no_to_bool[deadend_allow]
 # Process loot_allow
 loot_allow = yes_no_to_bool[loot_allow]
 # Process img_res
-if img_res == 'low':
-    img_len = 250
-elif img_res == 'medium':
-    img_len = 500
-elif img_res == 'high':
-    img_len = 1000
-elif img_res == 'very_high':
-    img_len = 2000
-else:
-    img_len = 4000
+
+img_len_diff = 2000 % dungeon_size[0]
+img_len = 2000 - img_len_diff
 img_height = int(img_len / dungeon_size[0]) * dungeon_size[1]
 img_res = (img_len, img_height)
 
@@ -165,13 +152,13 @@ for y in range(0, img.height, step_size):
     draw.line(line, fill=0)
 
 # Print RoomNumbers
-font = ImageFont.truetype('arial.ttf', 20)
+font = ImageFont.truetype('arialbd.ttf', 25)
 for k, v in dungeon.getCorner().items():
     draw.text((v[0][1]*img.height/dungeon.shape[0] + img.height/dungeon.shape[0]/2 - font.getsize(str(k))[0]/2, v[0][0]*img.height/dungeon.shape[1] + img.width/dungeon.shape[1]/2 - font.getsize(str(k))[1]/2), str(k), fill=128, font=font)
 
 img.save(img_path)
 
-include_debug = False
+include_debug = True
 
 # Send attributes to the HTML page- printer
 

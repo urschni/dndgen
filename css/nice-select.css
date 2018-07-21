@@ -1,0 +1,112 @@
+.nice-select {
+	-webkit-tap-highlight-color: transparent;
+	border: solid 1px #84776a;
+	cursor: pointer;
+	display: block;
+	height: 43px;
+	line-height: 43px;
+	outline: none;
+	padding-left: 18px;
+	color:#a07b5c;
+	position: relative;
+	-webkit-transition: all 0.55s ease-in-out;
+	transition: all 0.55s ease-in-out;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+.nice-select:hover, .nice-select:active, .nice-select.open, .nice-select:focus , .nice-select:hover:after, .nice-select:focus:after {border-color: #fe9439;color:#deae84}
+.nice-select:after {
+	border-bottom: 2px solid #6b5645;
+    border-right: 2px solid #6b5645;
+    content: '';
+    display: block;
+    height: 5px;
+    margin-top: -4px;
+    pointer-events: none;
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    -webkit-transform-origin: 66% 66%;
+        -ms-transform-origin: 66% 66%;
+            transform-origin: 66% 66%;
+    -webkit-transform: rotate(45deg);
+        -ms-transform: rotate(45deg);
+            transform: rotate(45deg);
+    -webkit-transition: all 0.15s ease-in-out;
+    transition: all 0.15s ease-in-out;
+    width: 5px; }
+.nice-select.open:after {
+    -webkit-transform: rotate(-135deg);
+        -ms-transform: rotate(-135deg);
+            transform: rotate(-135deg); }
+.nice-select.open .list {
+    opacity: 1;
+    pointer-events: auto;
+    -webkit-transform: scale(1) translateY(0);
+        -ms-transform: scale(1) translateY(0);
+            transform: scale(1) translateY(0); }
+.nice-select.disabled {
+    border-color: #ededed;
+    color: #999;
+    pointer-events: none; }
+.nice-select.disabled:after {
+      border-color: #cccccc; }
+.nice-select.wide {
+    width: 100%; }
+.nice-select.wide .list {
+      left: 0 !important;
+      right: 0 !important; }
+.nice-select.right {
+    float: right;}
+.nice-select.right .list {
+      left: auto;
+      right: 0; }
+
+.nice-select .list {
+	background: rgba(31,44,52,0.86);
+	border: solid 1px #906f54;
+   	
+	padding-left:18px;
+  
+    margin-top: 4px;
+    opacity: 0;
+    overflow: hidden;
+    padding: 0;
+    pointer-events: none;
+    position: absolute;
+    top: 100%;
+    left: -1px;
+    -webkit-transform-origin: 50% 0;
+        -ms-transform-origin: 50% 0;
+            transform-origin: 50% 0;
+    -webkit-transform: scale(0.75) translateY(-21px);
+        -ms-transform: scale(0.75) translateY(-21px);
+            transform: scale(0.75) translateY(-21px);
+    -webkit-transition: all 0.2s cubic-bezier(0.5, 0, 0, 1.25), opacity 0.15s ease-out;
+    transition: all 0.2s cubic-bezier(0.5, 0, 0, 1.25), opacity 0.15s ease-out;
+    z-index: 20; }
+.nice-select .list:hover .option:not(:hover) {
+      background-color: transparent !important; }
+.nice-select .option {
+	border-bottom:1px dotted #564234;
+    cursor: pointer;
+    line-height: 45px;
+    list-style: none;
+    min-height: 45px;
+    outline: none;
+    padding-left: 18px;
+    padding-right: 29px;
+    text-align: left;
+    -webkit-transition: all 0.4s;
+    transition: all 0.4s; }
+.nice-select .option:hover, .nice-select .option.focus, .nice-select .option.selected.focus {
+      background-color: #eab68b;}
+.nice-select .option:hover { color:#231a16;}
+
+.no-csspointerevents .nice-select .list {
+  display: none; }
+
+.no-csspointerevents .nice-select.open .list {
+  display: block; }

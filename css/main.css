@@ -1,0 +1,164 @@
+@charset "utf-8";
+/* background */
+* {margin: 0px;padding:0;}
+html, body {font-family: 'Lora',serif;background:url(../graphics/dndsite.jpg) top center no-repeat;min-height: 100vh ;object-fit: cover;display:block;}
+input, textarea {font-family:'Lora',serif;}
+
+/* content */
+#content {width:100%;}
+.mainContainer {width:980px;margin:0 auto;min-height:inherit;padding-top:150px;}
+.table {width:471px;box-sizing: border-box;background:url(../graphics/logo.png) center 48px no-repeat rgba(31,44,52,0.76);margin:auto;border:1px solid #269da1;-webkit-box-shadow: 0px 0px 27px 0px rgba(125,170,166,1);
+-moz-box-shadow: 0px 0px 27px 0px rgba(125,170,166,1);
+box-shadow: 0px 0px 27px 0px rgba(125,170,166,1);}
+#Prams{width:inherit;height:inherit;display:block;padding:150px 0 30px 0;}
+#Prams input[type=text] {width:262px;height:43px;display:block;margin:0 auto; background:none;outline:none;border:1px solid #84776a;color:#eab78c;font-size:15px;padding:0 18px;}
+#Prams input[type=text]:hover,#Prams input[type=text]:focus {border:1px solid #fe9439;}
+
+/* select */
+.radioField {width:300px;overflow:hidden;margin:30px auto;}
+.radioField input[type="radio"] + .fRight {float:right;width:70px;padding-left:30px;}
+.radioField input[type="radio"] + .mid { width:90px;padding-left:10px;}
+.radioField input[type="radio"] {display:none;}
+.radioField input[type="radio"] + label {color:#a07b5c;display:block;float:left;width:100px;overflow:hidden;font-size:15px;}
+.radioField input[type="radio"]:checked + label {color:#deae84;}
+.radioField input[type="radio"] + label span {display:inline-block;width:17px;height:17px;margin:-2px 10px 0 0;vertical-align:middle;border:1px solid #6b5645;cursor:pointer;position:relative;}
+.radioField input[type="radio"] + label span::after { content:'';background:url(../graphics/checkbox.png) -2px top no-repeat;position: absolute;top:0px;left: 0px; width: 19px; height: 19px; z-index: 14;opacity: 0; 
+-webkit-transition: all 550ms cubic-bezier(0.505, 0.125, 0.635, 0.800); 
+-moz-transition: all 550ms cubic-bezier(0.505, 0.125, 0.635, 0.800); 
+-o-transition: all 550ms cubic-bezier(0.505, 0.125, 0.635, 0.800); 
+transition: all 550ms cubic-bezier(0.505, 0.125, 0.635, 0.800);}
+.radioField input[type="radio"]:checked + label span {border:1px solid #deae84;}
+.radioField input[type="radio"]:checked + label span::after {opacity:1;} 
+.radioField input[type="radio"]:hover + label span { border:1px solid #fe9439;}
+
+/* dropdown */
+.lineContainer {width:300px;margin:0 auto 30px auto;}
+#ChestAndFrequency {height:45px;}
+#partyAndMonster, #TrapsAndDeadends, #sm {margin:30px auto;height:45px;}
+#DungeonLevel .nice-select, #AllowMonster .nice-select {width:280px ;}
+#DungeonLevel .nice-select .list, #AllowMonster .nice-select .list {width:298px;}
+#partyAndMonster .nice-select {width:115px ;float:left;}
+#partyAndMonster .nice-select .list  {width:133px}
+#AllowLoot {width:133px;height:43px;float:right;}
+#submit {width:300px;height:45px;background:url(../graphics/submit.jpg);display:block;text-indent:-9999px;border:none;outline:none;cursor:pointer;}
+#submit:hover {background:url(../graphics/submit_hover.jpg)}
+
+
+.nice-select .option {float:left;width:1px;border-right:1px dotted #564234;}
+.nice-select .option:nth-child(6n+7) {border-right:none;}
+.nice-select .option:first-child {float:none;display:none;}
+
+
+#RoomDensity  .nice-select .list, #partyAndMonster .nice-select .list {width:298px;}
+#RoomDensity  .nice-select .option {width:51px;text-align:center;}
+#AllowMonster .nice-select .list {width:471px;left:-29%;}
+#AllowMonster .nice-select .option  {float:left;width:187px;border-right:1px dotted #564234;}
+#AllowLoot .nice-select .option {width:100%;}
+
+
+/* tab */
+.tabset {position:relative;}
+.tabset > input[type="radio"] {position: absolute;left: -200vw;}
+.tabset .tab-panel {display: none;}
+.tabset > input:first-child:checked ~ .tabPanels > .tab-panel:first-child,
+.tabset > input:nth-child(3):checked ~ .tabPanels > .tab-panel:nth-child(2),
+.tabset > input:nth-child(5):checked ~ .tabPanels > .tab-panel:nth-child(3),
+.tabset > input:nth-child(7):checked ~ .tabPanels > .tab-panel:nth-child(4),
+.tabset > input:nth-child(9):checked ~ .tabPanels > .tab-panel:nth-child(5),
+.tabset > input:nth-child(11):checked ~ .tabPanels > .tab-panel:nth-child(6) {
+  display: block;
+  -webkit-animation: fadeIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  animation: fadeIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  
+}
+.tabset > label {display: inline-block;height:45px;padding:0 15px;line-height:45px;float:right;cursor: pointer;color:#84776a;border:1px solid #84776a;border-left:none;}
+.tabset > label::after {position:absolute;content:"Set Size Manually?";height:45px;width:172px;border:1px solid #84776a;left:0;top:0;color:#a07b5c;padding-left:18px;}
+.tabset > input:focus + label, .tabset > input + label:hover {color:#eab68b;}
+.tabset > input:checked + label {background:#eab68b;color:#140f0c;}
+.tab-panel {padding: 75px 0 0 0;}
+
+
+/* Manually */
+#DungeonSizeMan {overflow:hidden;}
+#DungeonSizeMan input[type=text] {width:99px;float:left;}
+#DungeonSizeMan input[type=text]:last-child {float:right;}
+
+
+
+/*checkbox */
+#TrapsAndDeadends .switch:first-child, #ChestAndFrequency .switch:first-child {float:left}
+.switch {position: relative;display:block;float:right;width: 133px;height: 43px;border:1px solid #84776a;}
+
+.switch input {position:absolute;top:100%;left:0;display:none;}
+.slider {position: absolute;cursor: pointer;top: 0;left: 0;right: 0;bottom: 0;-webkit-transition: .4s;transition: .4s}
+
+.slider:after {position:absolute;content:"";width:90px;height:43px;text-align:center;line-height:43px;color:#a07b5c;top:0;left:43px;
+	-webkit-transition: all 0.55s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  	-moz-transition: all 0.55s ecubic-bezier(0.68, -0.55, 0.265, 1.55);
+  	-o-transition: all 0.55s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  	transition: all 0.55s cubic-bezier(0.68, -0.55, 0.265, 1.55);}
+#Monster .slider:after {content:"Monster";}
+#Traps .slider:after {content:"Traps";}
+#DeadEnds .slider:after {content:"Deadends";}
+#Chests .slider:after {content:"Chests";}
+.slider:before {position: absolute;content: "No";text-align:center;line-height:43px;color:#a07b5c;height: 43px;width: 43px;border-right:1px solid #84776a;left: 0px;
+bottom: 0px;
+-webkit-transition: all 0.55s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+-moz-transition: all 0.55s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+-o-transition: all 0.55s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+transition: all 0.55s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+ }
+
+
+input:focus .switch, .switch:hover {
+ 	border-color:  #fe9439;
+}
+
+
+input:checked + .slider:before {
+  	-webkit-transform: translateX(90px);
+  	-ms-transform: translateX(90px);
+  	transform: translateX(90px);
+  	content: "Yes";
+  	background:#eab68b;
+	color:#140f0c;
+}
+
+input:checked + .slider:after{
+	-webkit-transform: translateX(-43px);
+  	-ms-transform: translateX(-43px);
+  	transform: translateX(-43px);
+	color:#eab68b;
+	-webkit-animation: movement 0.55s  ease-in-out ;
+    -moz-animation: movement 0.55s   ease-in-out ;
+    -ms-animation: movement 0.55s ease-in-out ;
+    -o-animation: movement 0.55s  ease-in-out  ;
+    animation: movement 0.55s ease-in-out  ;
+}
+
+	
+/* effect */
+#Prams input,.smoothEffect, .smoothEffect span  {-webkit-transition: all 550ms cubic-bezier(0.68, -0.55, 0.265, 1.55); 
+   -moz-transition: all 550ms cubic-bezier(0.68, -0.55, 0.265, 1.55); 
+     -o-transition: all 550ms cubic-bezier(0.68, -0.55, 0.265, 1.55); 
+        transition: all 550ms cubic-bezier(0.68, -0.55, 0.265, 1.55); }
+*::-webkit-input-placeholder { color:    #a07b5c;}
+*:-moz-placeholder {color:    #a07b5c;opacity:  1;}
+*::-moz-placeholder {color:    #a07b5c;opacity:  1;}
+*:-ms-input-placeholder { color:    #a07b5c;}
+*::-ms-input-placeholder { color:    #a07b5c;}
+*::placeholder {  color:    #a07b5c;}
+
+@keyframes movement {
+  0% {opacity:1;}
+  50% {opacity:0;}
+  100% {opacity:1;}
+}
+@-webkit-keyframes fadeIn {
+    from { opacity: 0; }
+      to { opacity: 1; }
+}  
+@keyframes fadeIn {
+    from { opacity: 0; }
+      to { opacity: 1; }
+}

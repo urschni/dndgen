@@ -1,221 +1,196 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<meta charset="utf-8">
-<head> <title>Dungeon Generator</title> 
+<head>
+<title>Dungeon Generator</title> 
 <link rel="shortcut icon" href="graphics/icon.ico" type="image/vnd.microsoft.icon" />
-	<style>
-		body{
-			background-image: url(graphics/bg.png);
-		}
-		.content {
-			max-width: 500px;
-			margin: auto;
-			padding: 15px;
-			background-color: rgba(255,255,255,0.85);
-			line-height: 2;
-			font-size: 20px;
-		}
-		.gitlink {
-			max-width: 525px;
-			margin: auto;
-			left: 0;
-			bottom: 0;
-			text-align: right;
-		}
-		input{font-size: 18px;}
-		select{font-size: 18px;}
-		.center {
-			display: block;
-			margin-left: auto;
-			margin-right: auto;
-		}
-	</style>
-	<script type="text/javascript">
-window.onload = function() {
-	DungeonSizeMan = document.getElementById("DungeonSizeMan");
-	DungeonSizeAuto = document.getElementById("DungeonSizeAuto");
-	AllowMonster = document.getElementById("AllowMonster");
-	AllowTraps = document.getElementById("AllowTraps");
-	AllowLoot = document.getElementById("AllowLoot")
+<link href="https://fonts.googleapis.com/css?family=Lora" rel="stylesheet">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>Untitled Document</title>
+
+<link href="css/main.css" rel="stylesheet" type="text/css">
+<link href="css/nice-select.css" rel="stylesheet" type="text/css">
+<script src="js/jquery.js"></script>
+<script src="js/jquery.nice-select.js"></script>
+ <script>
+    $(document).ready(function() {
+      	$('select').niceSelect();      
+     	var $height = $(document).height();
+		$('.mainContainer').css('height',$height);    
+    });    
 	
-	document.Params.dungeon_size_box[0].onclick = function(){
-		DungeonSizeAuto.style.display = "block";
-		DungeonSizeMan.style.display = "none";
-	}
-	document.Params.monster_allow[0].onclick = function() {
-		AllowMonster.style.display = "block";
-	}
-	document.Params.trap_allow[0].onclick = function() {
-		AllowTraps.style.display = "block";
-	}
-	document.Params.loot_allow[0].onclick = function() {
-		AllowLoot.style.display = "block";
-	}
-	document.Params.dungeon_size_box[1].onclick = function(){
-		DungeonSizeAuto.style.display = "none";
-		DungeonSizeMan.style.display = "block";
-	}
-	document.Params.monster_allow[1].onclick = function() {
-		AllowMonster.style.display = "none";
-	}
-	document.Params.trap_allow[1].onclick = function() {
-		AllowTraps.style.display = "none";
-	}
-	document.Params.loot_allow[1].onclick = function() {
-		AllowLoot.style.display = "none";
-	}
-	DungeonSizeAuto.style.display = "block";
-	DungeonSizeMan.style.display = "none";
-	AllowMonster.style.display = "block";
-	AllowTraps.style.display = "none";
-	AllowLoot.style.display = "block";
-}
-	</script>
+  </script>
 </head>
+
 <body>
-	<img class="center" src="graphics/DungeonGen.png" alt="Dungeon Logo" style="width:500px">
-<div class="content">
- <form id="Prams" action="/cgi-bin/controller.py" target="_blank" name="Params">
-  <!-- Dungeon Options -->
-		Dungeon Name:
-		<input type="text" name="dungeon_name" size="30">
-		<br>
-		Set Dungeon Size Manually? :
-		<input type="radio" name="dungeon_size_box" value="no" checked>No <input type="radio" name="dungeon_size_box" value="yes">Yes
-		<br>
-			<div id= DungeonSizeAuto>
-				Dungeon Size:
-				<select name="dungeon_size">
-					<option value="small"> Small</option>
-					<option value="medium" selected> Medium</option>
-					<option value="large"> Large</option>
-				</select>
-			</div>
-			<div id=DungeonSizeMan>
-				Dungeon Size: <br>
-				&emsp; Length: <input type="text" name="dungeon_size_length" size="3"> &emsp; Height: <input type="text" name="dungeon_size_height" size="3">
-			</div>
-		Room Density:
-		<select name="room_density">
-			<option value="low"> Low </option>
-			<option value="medium" selected> Medium </option>
-			<option value="high"> High </option>
-		</select>
-		<br>
-		Dungeon Level:
-		<select name="dungeon_lvl">
-			<option value="1"> 1</option>
-			<option value="2"> 2</option>
-			<option value="3"> 3</option>
-			<option value="4"> 4</option>
-			<option value="5"> 5</option>
-			<option value="6"> 6</option>
-			<option value="7"> 7</option>
-			<option value="8"> 8</option>
-			<option value="9"> 9</option>
-			<option value="10"> 10</option>
-			<option value="11"> 11</option>
-			<option value="12"> 12</option>
-			<option value="13"> 13</option>
-			<option value="14"> 14</option>
-			<option value="15"> 15</option>
-			<option value="16"> 16</option>
-			<option value="17"> 17</option>
-			<option value="18"> 18</option>
-			<option value="19"> 19</option>
-			<option value="20"> 20</option>
-			<option value="21"> 21</option>
-			<option value="22"> 22</option>
-			<option value="23"> 23</option>
-			<option value="24"> 24</option>
-			<option value="25"> 25</option>
-			<option value="26"> 26</option>
-			<option value="27"> 27</option>
-			<option value="28"> 28</option>
-			<option value="29"> 29</option>
-			<option value="30"> 30</option>
-		</select>
-		<br>
-		Party Size:
-		<select name="party_size">
-			<option value="1"> 1</option>
-			<option value="2"> 2</option>
-			<option value="3"> 3</option>
-			<option value="4"> 4</option>
-			<option value="5"> 5</option>
-			<option value="6"> 6</option>
-			<option value="7"> 7</option>
-			<option value="8"> 8</option>
-			<option value="9"> 9</option>
-			<option value="10"> 10</option>
-		</select>
-		<br>
-		Allow Monster:
-		<input type="radio" name="monster_allow" value="yes" checked>Yes <input type="radio" name="monster_allow" value="no">No
-		<br>
-			<div id=AllowMonster>
-				MonsterType:
-				<select name="monster_type">
-					<option value="All" selected> All </option>
-					<option value="Aberration"> Aberration</option>
-					<option value="Animal"> Animal</option>
-					<option value="Construct"> Construct</option>
-					<option value="Dragon"> Dragon</option>
-					<option value="Fey"> Fey</option>
-					<option value="Humanoid"> Humanoid</option>
-					<option value="Magical Beast"> Magical Beast</option>
-					<option value="Monstrous Humanoid"> Monstrous Humanoid</option>
-					<option value="Ooze"> Ooze</option>
-					<option value="Outsider"> Outsider</option>
-					<option value="Plant"> Plant</option>
-					<option value="Undead"> Undead</option>
-					<option value="Vermin"> Vermin</option>
-				</select>
-			</div>
-		Allow Traps:
-		<input type="radio" name="trap_allow" value="yes">Yes <input type="radio" name="trap_allow" value="no" checked> No 
-		<br>
-			<div id=AllowTraps>
-				Trap frequency:
-				<select name="trap_freq">
-					<option value="low"> Low</option>
-					<option value="medium" selected> Medium</option>
-					<option value="high"> High</option>
-				</select>
-			</div>
-		Allow Deadends:
-		<input type="radio" name="deadend_allow" value="yes"checked>Yes <input type="radio" name="deadend_allow" value="no"> No
-		<br>
-		Allow Loot Chests:
-		<input type="radio" name="loot_allow" value="yes" checked>Yes <input type="radio" name="loot_allow" value="no"> No 
-		<br>
-			<div id=AllowLoot>
-				Loot Chests frequency:
-				<select name="loot_freq">
-					<option value="low"> Low</option>
-					<option value="medium" selected> Medium</option>
-					<option value="high"> High</option>
-				</select>
-			</div>
-		Dungeon Image Resolution:
-		<select name="img_res">
-			<option value="low"> Low</option>
-			<option value="medium" selected> Medium</option>
-			<option value="high"> High</option>
-			<option value="very_high"> Very High</option>
-			<option value="ultra"> Ultra</option>
-		</select>
-		<br>
-		<br>
-		<input class="center" type="submit" value="Generate Dungeon">
-</form>
-</div>
- <!-- Github link -->
-<div class="gitlink">
-	<br>
-	<a href="https://github.com/urschni/dndgen">
-	<img src="graphics/GithubLogo.png" alt="Github Link" style="width:150px">
-	</a>
-</div>
+<div id="content">
+	<div class="mainContainer">
+        <div class="table">
+        	
+        	<form id="Prams" action="/cgi-bin/controller.py" target="_blank" name="Params">
+            
+            	<div class="lineContainer">
+                
+            		<input type="text" name="dungeon_name" id="DungeonName" size="30" placeholder="Dungeon Name" >	
+                    
+                </div><!-- end: DungeonName -->
+           
+                                    <div id="dungeon_size"  class="radioField lineContainer">
+                
+                                        <input type="radio" id="Large" name="dungeon_size" value="large"  />
+                                        <label for="Large" class="smoothEffect"><span></span>Large</label>
+                    
+                                        <input type="radio" id="Medium" name="dungeon_size" value="medium" checked />
+                                        <label for="Medium" class="mid smoothEffect"><span></span>Medium</label>
+                                        
+                                        <input type="radio" id="Small" name="dungeon_size" value="small"/>
+                                        <label for="Small" class="fRight smoothEffect"><span></span>Small</label>
+                        
+                                    </div> <!-- end: radioField -->
+
+                <div class="lineContainer" id="RoomDensity">
+                	<select name="room_density">
+                    	<option value="medium" selected> Room Density </option>
+                        <option value="low"> Low </option>
+                        <option value="medium"> Medium </option>
+                        <option value="high"> High </option>
+                    </select>
+                	
+                </div><!-- end: RoomDensity -->
+                
+            	
+                
+                <div id="DungeonLevel"  class="lineContainer">
+                
+                	<select name="dungeon_lvl" id="dungeonLvl">
+                    	<option value="10" selected>Dungeon Level</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                        <option value="9"> 9</option>
+                        <option value="10">10</option>
+                        <option value="11">11</option>
+                        <option value="12">12</option>
+                        <option value="13">13</option>
+                        <option value="14">14</option>
+                        <option value="15">15</option>
+                        <option value="16">16</option>
+                        <option value="17">17</option>
+                        <option value="18">18</option>
+                        <option value="19">19</option>
+                        <option value="20">20</option>
+                        <option value="21">21</option>
+                        <option value="22">22</option>
+                        <option value="23">23</option>
+                        <option value="24">24</option>
+                        <option value="25">25</option>
+                        <option value="26">26</option>
+                        <option value="27">27</option>
+                        <option value="28">28</option>
+                        <option value="29">29</option>
+                        <option value="30">30</option>
+                        
+                         
+                    </select>
+                    
+                    
+                </div>  <!-- end: DungeonLevel -->
+                
+            	<div id="partyAndMonster" class="lineContainer">
+                
+                	<select id="PartySize" name="party_size">
+                    	<option value="4"> PartySize:</option>
+                        <option value="1"> 1</option>
+                        <option value="2"> 2</option>
+                        <option value="3"> 3</option>
+                        <option value="4"> 4</option>
+                        <option value="5"> 5</option>
+                        <option value="6"> 6</option>
+                        <option value="7"> 7</option>
+                        <option value="8"> 8</option>
+                        <option value="9"> 9</option>
+                        <option value="10"> 10</option>
+                       
+                    </select><!-- end: PartySize -->
+                    
+                   <label class="switch" id="Monster" >
+                      <input type="checkbox" name="monster_allow" value="yes" checked>
+                      <span class="slider"></span>
+                    </label><!-- end: switch -->
+
+                </div> <!-- end:partyAndMonster -->
+                
+                <div id="AllowMonster" class="lineContainer">
+                    
+                    <select name="monster_type">
+                    	<option value="All" selected> Monster Type </option>
+                        <option value="All" > All </option>
+                        <option value="Aberration"> Aberration</option>
+                        <option value="Animal"> Animal</option>
+                        <option value="Construct"> Construct</option>
+                        <option value="Dragon"> Dragon</option>
+                        <option value="Fey"> Fey</option>
+                        <option value="Humanoid"> Humanoid</option>
+                        <option value="Magical Beast"> Magical Beast</option>
+                        <option value="Monstrous Humanoid"> Monstrous Humanoid</option>
+                        <option value="Ooze"> Ooze</option>
+                        <option value="Outsider"> Outsider</option>
+                        <option value="Plant"> Plant</option>
+                        <option value="Undead"> Undead</option>
+                        <option value="Vermin"> Vermin</option>
+                    </select>
+				</div> <!-- end:AllowMonster -->
+            	
+                
+                <div id="TrapsAndDeadends" class="lineContainer">
+                
+                	<label class="switch smoothEffect" id="Traps" >
+                      <input type="checkbox" name="trap_allow" value="yes" checked>
+                      <span class="slider"></span>
+                    </label><!-- end: Traps -->
+                    
+                    <label class="switch smoothEffect" id="DeadEnds" >
+                      <input type="checkbox" name="deadend_allow" value="yes" checked>
+                      <span class="slider"></span>
+                    </label><!-- end: DeadEnds -->
+                
+            	</div> <!-- end: TrapsAndDeadends -->
+                
+                
+                <div id="ChestAndFrequency" class="lineContainer">
+                
+                	<label class="switch smoothEffect" id="Chests" >
+                      <input type="checkbox" name="loot_allow" value="yes" checked>
+                      <span class="slider"></span>
+                    </label><!-- end: Traps -->
+                	
+                    <div id="AllowLoot" >
+                      
+                        <select name="loot_freq">
+                        	<option value="medium" selected>Frequency</option>
+                            <option value="low"> Low</option>
+                            <option value="medium" > Medium</option>
+                            <option value="high"> High</option>
+                        </select>
+                    </div><!-- end: AllowLoot -->
+                
+                </div> <!-- end: ChestAndFrequency -->
+                
+                <div id="sm" class="lineContainer">
+                	<input class="center" type="submit" id="submit" value="Generate Dungeon">
+                </div><!-- end: ChestAndFrequency -->
+            </form> <!-- end: Prams -->
+                   
+        </div> <!--end: table --> 
+        
+     </div><!--end: mainContainer --> 
+
+</div> <!--end: Content --> 
+
 </body>
-</html> 
+</html>
