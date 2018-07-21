@@ -158,7 +158,7 @@ for k, v in dungeon.getCorner().items():
 
 img.save(img_path)
 
-include_debug = True
+include_debug = False
 
 # Send attributes to the HTML page- printer
 
