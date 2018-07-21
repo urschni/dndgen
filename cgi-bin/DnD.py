@@ -149,7 +149,7 @@ class Dungeon(object):
 
 
     # Initialisierung vom Dungeon
-    def __init__(self,width,height):
+    def __init__(self,width,height,*dePercent):
         self.dMap =[]
         self.roads =[]
         self.rooms = []
@@ -161,7 +161,14 @@ class Dungeon(object):
         else:
             print("Error!!!")
             return
-
+        
+        if dePercent:
+            if dePercent[0] >= 0 or dePercent[0] <= 100:
+                self.deFrequency = dePercent[0]
+        else:
+            self.deFrequency = 50
+            
+        self.deadends = []
         self.dMap = np.zeros((self.shape[0],self.shape[1]), dtype=np.int)
 
 
@@ -435,6 +442,7 @@ class Dungeon(object):
 
         self.roads.append(self.entranceCreating())
         self.roads.append(self.exitCreating())
+        self.deadends.extend(self.deadendSetup())
 
         self.printRoad()
 
@@ -455,6 +463,7 @@ class Dungeon(object):
     
     
     def printRoad(self):
+        
         for road in self.roads:
             
             listNode = road.getRoad()
@@ -466,6 +475,14 @@ class Dungeon(object):
                 else:
                     self.dMap[listNode[n][0]][listNode[n][1]] = 6
 
+        for de in self.deadends:
+
+            listNode = de.getRoad()
+            max = len(listNode)
+
+            for n in range(max):
+                self.dMap[listNode[n][0]][listNode[n][1]] = 3
+                
         return self.dMap
 
    
@@ -505,7 +522,38 @@ class Dungeon(object):
         entrance = Road(self.dMap,(0,0),endNode,-1,-1,roomID)
 
         return entrance
+    
+    def deadendSetup(self):
 
+        count = 0
+        print(len(self.roads))
+        self.deadendsMax = floor(len(self.roads)/100 * self.deFrequency)
+
+        print(self.deadendsMax)
+
+        selectedList = []
+
+        for roadIdx in range(0,len(self.roads)-2):
+            selectedList.append(self.roads[roadIdx])
+
+
+        while(count < self.deadendsMax):
+
+            target = choice(selectedList)
+            targetID = target.getRoadID()
+
+            startID = target.getFromID()
+            endID = target.getToID()
+            keysList = target.getMid()
+            limit = target.getLimit()
+            #def __init__(self, map, start, end, roadID,startingRoomID,destinationID,*randomRoad):
+            deadend = Road(self.dMap,keysList[0],keysList[1],(targetID + len(self.roads) * 2),startID,endID,limit)
+
+            self.deadends.append(deadend)
+            selectedList.remove(target)
+            count += 1
+            
+        return self.deadends
 
 
 if __name__ == '__main__':
