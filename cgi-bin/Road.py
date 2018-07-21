@@ -10,7 +10,7 @@ from random import randint, choice
 class Road:
 
     # Initialisierung vom Weg-Objekt Konstruktur
-    def __init__(self, map, start, end, roadID,startingRoomID,destinationID, *random):
+    def __init__(self, map, start, end, roadID,startingRoomID,destinationID, *setCounter):
         self.fromID = startingRoomID    
         self.toID = destinationID       
         self.roadID = roadID            
@@ -20,11 +20,20 @@ class Road:
         self.map = map
         self.widthOfMap = np.shape(self.map)[0]
         self.heightOfMap = np.shape(self.map)[1]
-        if random:        
+
+        if setCounter:
+            
+            for el in setCounter: self.setCounter = el
+            self.deadendCreating()
+            self.deadend = True
+            self.mid = None
+
+        else:
+            self.deadend = False
             self.setRoadONB()
-        else:           
-            self.setRoadONB()
-  
+    
+    """ SEACHINGFUNCTION"""
+    
     def mapCheck(self, node ,direction, distance):
     # direction  = (axis,direction)  y = 0, x = 1, positive = -1, negative = 1
     # bottom  = (0,1) , right  = (1,1), bottom  = (0,-1), bottom  = (1, -1)
@@ -52,13 +61,13 @@ class Road:
             try:
                 if ((selected[0] >= 0) and (selected[1] >= 0)):         # y,x > 0
                     result.append(self.map[selected[0]][selected[1]])
-                else: result.append(False)
+                else: result.append(-1)
             except (IndexError):
-                result.append(False)
+                result.append(-1)
 
         return result
 
-
+    """ RANDOM OPTION """
 
     def obstacleAvoid(self,start,end,direction):
 
@@ -277,17 +286,38 @@ class Road:
                     mid = [a[0],a[1]]
                 else: break
 
-
         return  set(self.road)
-
+    
+    
+    """GETFUNCTION"""
+    
     def getRoad(self):
         return self.road
+    
+    def getMid(self):
+        return self.mid
+
+    def getLimit(self):
+        return self.roadCounter
+
+    def getFromID(self):
+        return self.fromID
+
+    def getToID(self):
+        return self.toID
+
+    def getDeadEnd(self):
+        return self.deadend
+
+    def getRoadID(self):
+        return self.roadID
+    
+    """NEIGHBOR OPTION"""
     
     def setDirectionONB(self):
 
         if ((self.mapCheck(self.start,(0,1),1) == 10) or (self.mapCheck(self.start,(0,-1),1) == 10)): return ((0,1),(0,-1))
         else: return ((1,1),(1,-1))
-
 
     def setMidPointONB(self,direction):
 
@@ -342,6 +372,88 @@ class Road:
 
         return stack
     
+    """DEAD END OPTION"""
+
+    def midAxis(self):
+
+        condition = [self.start[0] - self.end[0],self.start[1] - self.end[1]]
+        self.keys =  []
+
+        if condition[0] == 0:
+
+            if condition[1] < 0: self.keys.append((1,1))
+            else: self.keys.append((1,-1))
+            self.keys.append((0,1))
+            self.keys.append((0,-1))
+
+        else:
+            if condition[0] < 0: self.keys.append((0,1))
+            else: self.keys.append((0,-1))
+            self.keys.append((1,1))
+            self.keys.append((1,-1))
+
+        return self.keys
+
+    def deadendCreating(self):
+
+        direction = self.midAxis()
+
+        mAxis, neg, pos = direction[0], direction[1],direction[2]
+
+        mLimit,negLimit, posLimit = self.setCounter[1],self.setCounter[0],self.setCounter[2]
+
+        midSet = (self.start,self.end)
+        #random m1, m2
+        sel = choice(midSet)
+        keys = [sel]
+
+        index = midSet.index(sel)
+
+        if index == 0:  selDirection = [mAxis[0], mAxis[1] * - 1]
+        else:           selDirection = mAxis
+
+        searchLine = self.lineCheck(sel,selDirection,mLimit+1)
+
+        selected =[sel[0],sel[1]]
+        for element in searchLine:
+
+            if element < 0:
+                selected[selDirection[0]] -= selDirection[1]
+                break
+            else:
+                selected[selDirection[0]] += selDirection[1]
+
+
+        keys.append((selected[0],selected[1]))
+        nextBuild = choice((True,False))
+
+        if nextBuild:
+
+            mainAxis = choice((neg, pos))
+
+            if mainAxis == neg: mainLimit =  negLimit - 1
+            else: mainLimit = posLimit - 1
+
+            searchLine = self.lineCheck(selected,mainAxis,mainLimit)
+
+            for element in searchLine:
+                if element != 0:
+                    selected[mainAxis[0]] -= mainAxis[1]
+                    break
+                else:
+                    selected[mainAxis[0]] += mainAxis[1]
+
+            keys.append((selected[0],selected[1]))
+
+
+        for keyIdx in range(len(keys)-1):
+
+            edge, counter = self.edgeCreating(keys[keyIdx],keys[keyIdx + 1])
+            self.roadCounter.append(counter)
+            self.road.extend(edge)
+
+        return self.road
     
     
+     
 
