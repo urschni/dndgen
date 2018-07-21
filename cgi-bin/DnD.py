@@ -7,7 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 """
-Dnd Generator version 0.070
+Dnd Generator version 0.80
 """
 class Room(object):
 
@@ -134,22 +134,22 @@ class Room(object):
             print ("Error!!!")
             return 0
 
+    def getCorner(self):
+        return [(self.top,self.left),(self.bottom, self.right)]
+
     def addRoad(self, road):
         if len(self.roads) <= len(self.neighbor):
             self.roads.append(road)
         return 0
-    
-    def getCorner(self):
-        return [(self.top,self.left),(self.bottom, self.right)]
+
 
 
 
 class Dungeon(object):
 
 
-
     # Initialisierung vom Dungeon
-    def __init__(self,width,height):
+    def __init__(self,width,height,*dePercent):
         self.dMap =[]
         self.roads =[]
         self.rooms = []
@@ -162,7 +162,15 @@ class Dungeon(object):
             print("Error!!!")
             return
 
+        if dePercent:
+            if dePercent[0] >= 0 or dePercent[0] <= 100:
+                self.deFrequency = dePercent[0]
+        else:
+            self.deFrequency = 50
+        self.deadends = []
         self.dMap = np.zeros((self.shape[0],self.shape[1]), dtype=np.int)
+
+
 
 
     # mehrere Räume erstellen
@@ -376,16 +384,17 @@ class Dungeon(object):
         temp =      np.reshape(self.mapping,(1,shape[0] * shape[1]))
 
         for i in temp[0]:
-            
+
             roomID = i.get('room') - 1
             i.setdefault('doors')
             i['doors'] = self.rooms[roomID].getDoors()
-            
+
         self.mapping = temp
 
 
 
     def roadCreating(self):
+
 
         for field in self.mapping[0]:
 
@@ -402,61 +411,47 @@ class Dungeon(object):
                     startDirection = startCandidates[0]
                     start = field.get('doors').get(startDirection)[0]
 
+
+
                     endFieldSelected = self.mapping[0][endFieldID]
                     endDirection = (startCandidates[0][0],startCandidates[0][1] * -1)
-                    
                     endRoom = endFieldSelected.get('room')
 
                     if endRoom == 0:
-                        
-                        startNeightbor.remove(endFieldID)
-                        
+                      
+                        startNeightbor.remove(endFieldID)   
                         startCandidates.remove(startDirection)
-                        
                         endFieldSelected.get('neightbor').remove(startFieldID)
-                       
                         endFieldSelected.get('neightborDirection').remove(endDirection)
 
                     else:
-                        #print(startNeightbor,startFieldID)
-                       
+                        
                         end  = endFieldSelected.get('doors').get(endDirection)[0]
-                        
                         startNeightbor.remove(endFieldID)
-                        
                         startCandidates.remove(startDirection)
-                        
+
                         endFieldSelected.get('neightbor').remove(startFieldID)
-                        
                         endFieldSelected.get('neightborDirection').remove(endDirection)
                         #def __init__(self, map, start, end, roadID,startingRoomID,destinationID):
                         tempRoad = Road(self.dMap,start,end,1,startFieldID,endFieldID)
                         self.roads.append(tempRoad)
 
+
         self.roads.append(self.entranceCreating())
         self.roads.append(self.exitCreating())
+        self.deadends.extend(self.deadendSetup())
+
 
         self.printRoad()
 
     # Dungeon zurückgeben
     def returnArray(self):
         return self.dMap
-    
-    def getCorner(self):
-        self.corner = {}
 
-        for room in self.rooms:
-            id = room.getID()
-            corner = room.getCorner()
-
-            self.corner.setdefault(id,[]).extend(corner)
-
-        return self.corner
-    
-    
     def printRoad(self):
+
         for road in self.roads:
-            
+
             listNode = road.getRoad()
             max = len(listNode)
 
@@ -466,9 +461,29 @@ class Dungeon(object):
                 else:
                     self.dMap[listNode[n][0]][listNode[n][1]] = 6
 
+        for de in self.deadends:
+
+            listNode = de.getRoad()
+            max = len(listNode)
+
+            for n in range(max):
+
+                self.dMap[listNode[n][0]][listNode[n][1]] = 3
+
+
         return self.dMap
 
-   
+    def getCorner(self):
+
+        self.corner = {}
+        for room in self.rooms:
+
+            id = room.getID()
+            corner = room.getCorner()
+            self.corner.setdefault(id,[]).extend(corner)
+
+        return self.corner
+
 
     def exitCreating(self):
 
@@ -504,15 +519,53 @@ class Dungeon(object):
         ##def __init__(self, map, start, end, roadID,startingRoomID,destinationID):
         entrance = Road(self.dMap,(0,0),endNode,-1,-1,roomID)
 
+
         return entrance
+
+    def deadendSetup(self):
+
+        count = 0
+        print(len(self.roads))
+        self.deadendsMax = floor(len(self.roads)/100 * self.deFrequency)
+
+        print(self.deadendsMax)
+
+        selectedList = []
+
+        for roadIdx in range(0,len(self.roads)-2):
+            selectedList.append(self.roads[roadIdx])
+
+
+        while(count < self.deadendsMax):
+
+            target = choice(selectedList)
+            targetID = target.getRoadID()
+
+            startID = target.getFromID()
+            endID = target.getToID()
+            keysList = target.getMid()
+            limit = target.getLimit()
+            #def __init__(self, map, start, end, roadID,startingRoomID,destinationID,*randomRoad):
+            deadend = Road(self.dMap,keysList[0],keysList[1],(targetID + len(self.roads) * 2),startID,endID,limit)
+
+            self.deadends.append(deadend)
+            selectedList.remove(target)
+            count += 1
+
+
+
+        return self.deadends
 
 
 
 if __name__ == '__main__':
-    test = Dungeon(35,20)
-    test.multiRoom(5,4)
+
+    test = Dungeon(50,50)
+    test.multiRoom(5,12)
 
     test.roadCreating()
+
+
 
 
     arr = test.returnArray()
