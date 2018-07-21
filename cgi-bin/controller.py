@@ -84,6 +84,10 @@ else:
     trap_freq = 0.6
 # Process dead end_allow
 deadend_allow = yes_no_to_bool[deadend_allow]
+if deadend_allow:
+	deadend = 50
+else:
+	deadend = 0
 # Process loot_allow
 loot_allow = yes_no_to_bool[loot_allow]
 # Process img_res
@@ -94,7 +98,7 @@ img_height = int(img_len / dungeon_size[0]) * dungeon_size[1]
 img_res = (img_len, img_height)
 
 # Create Dungeon
-dungeon = Dungeon(dungeon_size[0], dungeon_size[1])
+dungeon = Dungeon(dungeon_size[0], dungeon_size[1],deadend)
 dungeon.multiRoom(room_density[0], room_density[1])
 dungeon.roadCreating()
 map = dungeon.returnArray()
