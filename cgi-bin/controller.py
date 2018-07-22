@@ -84,6 +84,10 @@ else:
     trap_freq = 0.6
 # Process dead end_allow
 deadend_allow = yes_no_to_bool[deadend_allow]
+if deadend_allow:
+	deadend = 50
+else:
+	deadend = 0
 # Process loot_allow
 loot_allow = yes_no_to_bool[loot_allow]
 # Process img_res
@@ -94,7 +98,7 @@ img_height = int(img_len / dungeon_size[0]) * dungeon_size[1]
 img_res = (img_len, img_height)
 
 # Create Dungeon
-dungeon = Dungeon(dungeon_size[0], dungeon_size[1])
+dungeon = Dungeon(dungeon_size[0], dungeon_size[1],deadend)
 dungeon.multiRoom(room_density[0], room_density[1])
 dungeon.roadCreating()
 map = dungeon.returnArray()
@@ -103,23 +107,28 @@ map = dungeon.returnArray()
 number_of_encounter = len(dungeon.rooms)
 encounter = ''
 if monster_allow or loot_allow or trap_allow:
-    encounter = '<h2>Encounter</h2>\n'
-    encounter += "<div class=\"container\">\n"
+    encounter = " "
     for room_number in range(0, number_of_encounter):
-        encounter += "<div class=\"item\">\n"
+        encounter += "<div class=\"informationBlock item\">\n"
         encounter += '<h3 id=\"room' + str(room_number+1) + '\">Room ' + str(room_number+1) + '</h3>\n'
         if monster_allow:
+            encounter += "<div class=\"monster\">\n"
             encounter += '<h4>Monster:</h4>\n'
             encounter += gen_monster_encounter(dungeon_lvl) + '\n'
+            encounter +=  "</div><!--end: Monster -->\n"
         if loot_allow:
+            encounter += "<div class=\"loot\">\n"
             encounter += '<h4>Loot:</h4>\n'
             encounter += gen_loot(dungeon_lvl)
+            encounter += "</div><!--end: Loot -->\n"
         if trap_allow:
             traps = gen_traps(dungeon_lvl, trap_freq, chance_to_get_multiple_traps=trap_freq / 2)
             if traps is not None:
+                encounter += "<div class=\"traps\">\n"
                 encounter += '<h4>Traps:</h4>\n'
                 encounter += traps
-        encounter += "</div>\n"
+                encounter += "</div><!--end: Traps -->\n"
+        encounter += "</div><!--end: informationBlock -->\n"
 
 # create unique name
 img_name = str(uuid.uuid4().hex)
@@ -152,13 +161,13 @@ for y in range(0, img.height, step_size):
     draw.line(line, fill=0)
 
 # Print RoomNumbers
-font = ImageFont.truetype('arialbd.ttf', 25)
+font = ImageFont.truetype('arialbd.ttf', 50)
 for k, v in dungeon.getCorner().items():
     draw.text((v[0][1]*img.height/dungeon.shape[0] + img.height/dungeon.shape[0]/2 - font.getsize(str(k))[0]/2, v[0][0]*img.height/dungeon.shape[1] + img.width/dungeon.shape[1]/2 - font.getsize(str(k))[1]/2), str(k), fill=128, font=font)
 
 img.save(img_path)
 
-include_debug = True
+include_debug = False
 
 # Send attributes to the HTML page- printer
 
