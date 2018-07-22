@@ -1,5 +1,4 @@
 from random_dungeon_name import gen_random_dungeon_name
-import pdfkit
 
 #Prints the HTML page for the client
 
@@ -29,21 +28,32 @@ def createResponse(debug, name, attributes, encounters,img_name):
     file.write("div.dungeon img{height: 85%;}\n")
     file.write(".container {display: flex;justify-content: center;flex-wrap: wrap;width: 100%;margin: auto;text-align: center;}\n")
     file.write(".item{width: 280px;background-color: rgba(205,179,128,0.65);padding: 10px;border: 2px solid black;margin: 0;float:center}\n")
+    file.write("div.logo img{width: 500px;}\n")
     file.write("@media only screen and (max-device-width: 1024px){.content{width: 100%;}div.dungeon img{width: 95%;height: auto;}}\n")
+    file.write("@media print{\n")
+    file.write("body{background-image: none;}\n")
+    file.write(".breaks{display: none !important;}\n")
+    file.write(".buttons{display: none !important;}\n")
+    file.write(".content{width:100%;background-color: rgba(255,255,255,1);}\n")
+    file.write("div.logo img{width: 300px;}\n")
+    file.write("div.dungeon img{width: 700px;height: 700px;}\n")
+    file.write(".item{background-color: rgba(255,255,255,1)}\n")
+    file.write(".gitlink{display: none;}}\n")
     file.write("</style>\n")
     file.write("</head>\n")
     file.write("<body>\n")
-    file.write("<br><br><br><br><br><br>")
+    file.write("<div class=\"breaks\"><br><br><br><br><br><br></div>")
     file.write("<div class=\"content\">\n")
-    file.write("<img class=\"center\" src=\"../graphics/DungeonGen.png\" alt=\"Dungeon Logo\" style=\"width:500px\">\n")
+    file.write("<div class=\"logo\"><img class=\"center\" src=\"../graphics/DungeonGen.png\" alt=\"Dungeon Logo\"></div>\n")
     file.write("<h1>" + name + "</h1>\n")
     if debug:
         file.write("<h2>Values:</h2>\n")
         file.write(attributes)
     file.write("<div class=\"dungeon\"><br><img src=\"../saved_dungeons/"+img_name+".png\" alt=\"Dungeon Map\"><br></div>\n")
-    file.write("<br>")
-    file.write("<a href=\"../saved_dungeons/"+img_name+".pdf\" download=\"Dungeon\"><img src=\"../graphics/submit_pdf.png\" onmouseover=\"hoverPdf(this);\" onmouseout=\"unhoverPdf(this);\" alt=\"Download PDF\" style=\"width:300px\"></a> &nbsp;&nbsp;\n")
+    file.write("<br><div class=\"buttons\">")
+    file.write("<a onclick=\"window.print()\"><img src=\"../graphics/submit_pdf.png\" onmouseover=\"hoverPdf(this);\" onmouseout=\"unhoverPdf(this);\" alt=\"Download PDF\" style=\"width:300px\"></a> &nbsp;&nbsp;\n")
     file.write("<a href=\"../saved_dungeons/"+img_name+".png\" download=\"Dungeon\"><img src=\"../graphics/submit_image.png\" onmouseover=\"hoverImg(this);\" onmouseout=\"unhoverImg(this);\" alt=\"Download Image\" style=\"width:300px\"></a><br>\n")
+    file.write("</div>\n")
     file.write(encounters)
     file.write("</div>\n")
     file.write("<div class=\"gitlink\"><br><a href=\"https://github.com/urschni/dndgen\"><img src=\"../graphics/GithubLogo.png\" alt=\"Github Link\" style=\"width:150px\"></a></div>\n")
@@ -51,18 +61,7 @@ def createResponse(debug, name, attributes, encounters,img_name):
     file.write("</html>")
     
     file.close()
-    #Create downlaodable pdf file
-    
-    output_path = "saved_dungeons/"+img_name+".pdf"
-    options = {
-        'margin-top': '0cm',
-        'margin-right': '0cm',
-        'margin-bottom': '0cm',
-        'margin-left': '0cm'
-    }
-    pdfkit.from_file(file_path, output_path, options)
-
-    
+       
     
     #Create Redirect
     print("Content-Type: text/html; charset=utf-8\n")
@@ -74,7 +73,6 @@ def createResponse(debug, name, attributes, encounters,img_name):
     print("<title>Page Redirection</title>")
     print("</head>")
     print("<body>")
-    #print("<!-- Note: don't tell people to `click` the link, just tell them that it is a link. -->")
     print("If you are not redirected automatically, follow this <a href=\"../saved_dungeons/"+img_name+".html\">link to example</a>.")
     print("</body>")
     print("</html>")
