@@ -2,15 +2,20 @@
 <html>
 <head>
 <title>Dungeon Generator</title> 
-<link rel="shortcut icon" href="graphics/icon.ico" type="image/vnd.microsoft.icon" />
+<link rel="shortcut icon" href="img/icon.ico" type="image/vnd.microsoft.icon" />
 <link href="https://fonts.googleapis.com/css?family=Lora" rel="stylesheet">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-<title>Untitled Document</title>
 
 <link href="css/main.css" rel="stylesheet" type="text/css">
 <link href="css/nice-select.css" rel="stylesheet" type="text/css">
 <script src="js/jquery.js"></script>
+<script src="js/canvas/easeljs-0.8.1.min.js"></script>
+<script src="js/canvas/tweenjs-0.6.1.min.js"></script>
+<script src="js/canvas/movieclip-0.8.1.min.js"></script>
+<script src="js/canvas/preloadjs-0.6.1.min.js"></script>
+<script src="js/hover.js"></script>
+<script src="js/canvas.js"></script>
 <script src="js/jquery.nice-select.js"></script>
  <script>
     $(document).ready(function() {
@@ -22,7 +27,8 @@
   </script>
 </head>
 
-<body>
+<body onload="init();" >
+
 <div id="content">
 	<div class="mainContainer">
         <div class="table">
@@ -181,8 +187,10 @@
                 
                 </div> <!-- end: ChestAndFrequency -->
                 
-                <div id="sm" class="lineContainer">
-                	<input class="center" type="submit" id="submit" value="Generate Dungeon">
+                <div id="sm" class="lineContainer" style="position:relative;">
+                	<input class="center smoothEffect" type="submit" id="submit" value="Generate Dungeon">
+                    <canvas id="canvas" width="300" height="45" style=""></canvas>
+                   
                 </div><!-- end: ChestAndFrequency -->
             </form> <!-- end: Prams -->
                    
