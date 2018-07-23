@@ -169,7 +169,7 @@ class Dungeon(object):
             self.deFrequency = 50
         self.deadends = []
         self.dMap = np.zeros((self.shape[0],self.shape[1]), dtype=np.int)
-
+        self.id = []
 
 
 
@@ -207,7 +207,10 @@ class Dungeon(object):
         """
 
         big, normal, small = self.sizeControl(numberOfRoom)
-        id = list(np.arange(0,numberOfRoom,1))
+        id = [elementID for elementID in self.id]
+        if count > len(id):
+            count = len(id)
+        safetyFactor = [2,2.5]
 
         safetyFactor = [2,2.5]
         # Räume in den zufälligen Feldern erzeugt
@@ -291,7 +294,8 @@ class Dungeon(object):
                 self.mapping[row][column] = {'fieldID': fieldID, 'randomZone': [], 'neightbor': [], 'neightborDirection' : [], 'room': 0}
                 self.mapping[row][column]['randomZone'].extend(limit)
                 self.mappingCo.setdefault(fieldID, []).extend([row,column])
-
+                
+                self.id.append(fieldID)
                 fieldID += 1
 
 
