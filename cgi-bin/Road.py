@@ -439,7 +439,7 @@ class Road:
         if index == 0:  selDirection = [mAxis[0], mAxis[1] * - 1]
         else:           selDirection = mAxis
 
-        searchLine = self.lineCheck(sel,selDirection,mLimit+1)
+        searchLine = self.lineCheck(sel,selDirection,mLimit-1)
 
         selected =[sel[0],sel[1]]
         for element in searchLine:
